@@ -1,18 +1,31 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GeoCollection, GeoFeature, ElectionResult, Outcome } from '@/types/geo';
+import Avatar from './Avatar';
+import { AlertBanner, FeedDrawer, useAlerts } from './Alerts';
+import { aggregate, type ExteriorCity } from './exterior-utils';
+
+const WorldMap = dynamic(() => import('./WorldMap'), { ssr: false, loading: () => <div className="map-loading"><span className="spinner" />Carregando mapa-múndi…</div> });
+type ExteriorData = { total: ElectionResult; cities: ExteriorCity[]; totalCities: number; unmatched: string[] };
+
+// Anima os números do placar até o valor novo.
+function useCountUp(target?: number) {
+  const [value, setValue] = useState(target ?? 0);
+  const from = useRef(target ?? 0);
+  useEffect(() => {
+    if (target == null) return;
+    const start = from.current, t0 = performance.now();
+    let frame = 0;
+    const tick = (now: number) => { const k = Math.min((now - t0) / 800, 1); const v = start + (target - start) * (1 - Math.pow(1 - k, 3)); from.current = v; setValue(v); if (k < 1) frame = requestAnimationFrame(tick); };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target]);
+  return value;
+}
 
 const MapView = dynamic(() => import('./MapView'), { ssr: false, loading: () => <div className="map-loading"><span className="spinner" />Carregando mapa interativo…</div> });
-const initials = (name: string) => name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-function Avatar({ c, cls }: { c?: { photoUrl?: string; name: string; color?: string }; cls: string }) {
-  const [bad, setBad] = useState(false);
-  useEffect(() => setBad(false), [c?.photoUrl]);
-  if (!c) return null;
-  if (!c.photoUrl || bad) return <div className={`${cls} ph`} style={{ borderColor: c.color }}>{initials(c.name)}</div>;
-  return <img className={cls} src={c.photoUrl} alt={`Foto de ${c.name}`} loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />;
-}
 const unavailable = 'Dados oficiais indisponíveis no momento';
 const initial: GeoCollection = { type: 'FeatureCollection', features: [] };
 const offices = ['Presidente', 'Governador', 'Senador', 'Deputado Federal', 'Deputado Estadual'];
@@ -27,6 +40,7 @@ export default function Dashboard() {
   const [city, setCity] = useState<GeoFeature | null>(null);
   const [result, setResult] = useState<ElectionResult | null>(null);
   const [mapError, setMapError] = useState('');
+  const [resultError, setResultError] = useState('');
   const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState<GeoFeature[]>([]);
   const [office, setOffice] = useState('Presidente');
@@ -34,6 +48,11 @@ export default function Dashboard() {
   const [round, setRound] = useState(2);
   const [view, setView] = useState<'Vencedor' | 'Participação'>('Vencedor');
   const [mapOutcomes, setMapOutcomes] = useState<Record<string, Outcome>>({});
+  const [scope, setScope] = useState<'brasil' | 'exterior'>('brasil');
+  const [exterior, setExterior] = useState<ExteriorData | null>(null);
+  const [feedOpen, setFeedOpen] = useState(false);
+  const [seen, setSeen] = useState(0);
+  const [photos, setPhotos] = useState<Record<string, string>>({});
   const [listFilter, setListFilter] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [busy, setBusy] = useState(true);
@@ -58,15 +77,26 @@ export default function Dashboard() {
     return () => { active = false; };
   }, [state]);
   useEffect(() => {
+    if (scope === 'exterior') return;
     let active = true;
     setListFilter(''); setShowAll(false);
     if (office !== 'Presidente' && !state) { setResult(null); return; }
-    const load = () => fetch(`/api/results?locality=${area?.properties.codarea ?? 'br'}&uf=${state?.properties.sigla ?? 'br'}&year=${year}&office=${encodeURIComponent(office)}&round=${round}`).then(async response => { if (!response.ok) throw new Error(); return response.json(); }).then((data: ElectionResult) => { if (active) { setResult(data); const winner = data.totalizedSections ? data.candidates.slice().sort((a,b) => b.votes-a.votes)[0] : null; if (winner) setMapOutcomes(current => ({ ...current, [data.localityCode]: { color: winner.color, turnout: data.turnout } })); } }).catch(() => { if (active) setResult(null); });
-    setResult(null);
+    const load = () => fetch(`/api/results?locality=${area?.properties.codarea ?? 'br'}&uf=${state?.properties.sigla ?? 'br'}&year=${year}&office=${encodeURIComponent(office)}&round=${round}`).then(async response => { if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.detail || 'Dados indisponíveis'); } return response.json(); }).then((data: ElectionResult) => { if (active) { setResultError(''); setResult(data); const winner = data.totalizedSections ? data.candidates.slice().sort((a,b) => b.votes-a.votes)[0] : null; if (winner) setMapOutcomes(current => ({ ...current, [data.localityCode]: { ...current[data.localityCode], color: winner.color, turnout: data.turnout } })); } }).catch((e: Error) => { if (active) { setResult(null); setResultError(e.message); } });
+    setResult(null); setResultError('');
     load();
     const timer = setInterval(load, 60_000);
     return () => { active = false; clearInterval(timer); };
-  }, [area, state, office, round, year]);
+  }, [area, state, office, round, year, scope]);
+  useEffect(() => {
+    if (scope !== 'exterior') return;
+    let active = true;
+    setExterior(null); setResult(null); setResultError('');
+    const load = () => fetch(`/api/results/exterior?year=${year}&round=${round}`).then(async response => { if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.detail || 'Dados do exterior indisponíveis'); } return response.json(); }).then((data: ExteriorData) => { if (active) { setExterior(data); setResult(data.total); setResultError(''); } }).catch((e: Error) => { if (active) setResultError(e.message); });
+    load();
+    const timer = setInterval(load, 60_000);
+    return () => { active = false; clearInterval(timer); };
+  }, [scope, year, round]);
+  useEffect(() => { if (result?.candidates) setPhotos(current => ({ ...Object.fromEntries(result.candidates.filter(c => c.photoUrl).map(c => [c.candidateId, c.photoUrl!])), ...current })); }, [result]);
   useEffect(() => {
     let active = true;
     setMapOutcomes({});
@@ -95,6 +125,11 @@ export default function Dashboard() {
   };
   const ranked = result?.candidates?.slice().sort((a, b) => b.votes - a.votes) ?? [];
   const [first, second] = ranked;
+  const shownFirst = useCountUp(first?.percentage);
+  const shownSecond = useCountUp(second?.percentage);
+  const stateNames = useMemo(() => Object.fromEntries(states.features.map(f => [f.properties.codarea, f.properties.nome])), [states]);
+  const { alerts, banner } = useAlerts({ outcomes: mapOutcomes, national: scope === 'brasil' && office === 'Presidente' && !state ? result : null, names: stateNames, resetKey: `${year}-${office}-${round}` });
+  const countries = useMemo(() => exterior ? aggregate(exterior.cities, exterior.total.candidates) : [], [exterior]);
   const others = Math.max(0, 100 - (first?.percentage ?? 0) - (second?.percentage ?? 0));
   const counted = result?.totalSections ? ((result.totalizedSections ?? 0) / result.totalSections) * 100 : 0;
   const updateAt = result?.updatedAt ?? null;
@@ -119,9 +154,11 @@ export default function Dashboard() {
   return <main className="app">
     <header className="topbar">
       <a className="brand" href="#" aria-label="Apuração Brasil, início" onClick={e => { e.preventDefault(); goBrazil(); }}><span className="brand-mark"><i /><i /><i /></span><b>apuração</b></a>
-      <nav className="tabs" aria-label="Cargo">{offices.map(item => <button key={item} className={office === item ? 'on' : ''} onClick={() => setOffice(item)}>{item}</button>)}</nav>
+      <div className="seg" role="group" aria-label="Escopo">{(['brasil', 'exterior'] as const).map(item => <button key={item} className={scope === item ? 'on' : ''} onClick={() => { if (item === 'exterior') { setOffice('Presidente'); goBrazil(); } setScope(item); }}>{item === 'brasil' ? 'Brasil' : 'Exterior'}</button>)}</div>
+      <nav className="tabs" aria-label="Cargo">{offices.map(item => <button key={item} className={office === item ? 'on' : ''} onClick={() => { setOffice(item); if (item !== 'Presidente') setScope('brasil'); }}>{item}</button>)}</nav>
       <div className="top-meta">TSE · IBGE</div>
       <div className="top-actions">
+        <button className={`feed-btn ${feedOpen ? 'on' : ''}`} onClick={() => { setFeedOpen(v => !v); setSeen(alerts.length); }}><span className="live-dot" />Avisos{!feedOpen && alerts.length > seen && <em>{alerts.length - seen}</em>}</button>
         <div className="search-wrap"><span className="search-icon">⌕</span><input aria-label="Buscar estado ou município" placeholder="Buscar estado ou município…" value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => { if (e.key === 'Escape') setSearch(''); if (e.key === 'Enter' && matching[0]) searchSelect(matching[0]); }} />{search && <button className="clear-search" onClick={() => setSearch('')} aria-label="Limpar busca">×</button>}
           {matching.length > 0 && <div className="search-menu">{matching.map(feature => <button key={feature.properties.codarea} onClick={() => searchSelect(feature)}><span>{feature.properties.nome}<small>{String(feature.properties.codarea).length === 2 ? 'Estado' : 'Município'}</small></span><b>↗</b></button>)}</div>}</div>
         <label className="select-pill"><select aria-label="Ano" value={year} onChange={e => setYear(Number(e.target.value))}><option value={2026}>2026</option><option value={2022}>2022</option></select></label>
@@ -134,9 +171,9 @@ export default function Dashboard() {
       <div className="center">
         <div className="headline">{headline}</div>
         <div className="bar">
-          <div className="seg-l" style={{ width: `${first?.percentage ?? 50}%`, background: first?.color ?? '#2a3140' }}><b>{first ? percent(first.percentage) : '—'}</b><span>{first ? `${format(first.votes)} votos` : ''}</span></div>
+          <div className="seg-l" style={{ width: `${first?.percentage ?? 50}%`, background: first?.color ?? '#2a3140' }}><b>{first ? percent(shownFirst) : '—'}</b><span>{first ? `${format(first.votes)} votos` : ''}</span></div>
           {others > 0.5 && <div className="seg-o" style={{ width: `${others}%` }} />}
-          <div className="seg-r" style={{ width: `${second?.percentage ?? 50}%`, background: second?.color ?? '#2a3140' }}><span>{second ? `${format(second.votes)} votos` : ''}</span><b>{second ? percent(second.percentage) : '—'}</b></div>
+          <div className="seg-r" style={{ width: `${second?.percentage ?? 50}%`, background: second?.color ?? '#2a3140' }}><span>{second ? `${format(second.votes)} votos` : ''}</span><b>{second ? percent(shownSecond) : '—'}</b></div>
           <i className="half" />
         </div>
         <div className="counted"><b>{counted ? `${counted.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%` : '—'}</b> apurado · {format(result?.totalizedSections)} de {format(result?.totalSections)} seções</div>
@@ -148,7 +185,7 @@ export default function Dashboard() {
     <section className="grid">
       <aside className="panel left-panel">
         <h3>Apuração</h3>
-        <p className="sub">{office} · {round}º turno · {dataDates[`${year}-${round}`]}</p>
+        <p className="sub">{office} · {result?.round ?? round}º turno{result?.fellBack ? ' (este cargo não tem 2º turno aqui)' : ` · ${dataDates[`${year}-${round}`]}`}</p>
         <div className="kpis">
           <div><span>Seções totalizadas</span><b>{format(result?.totalizedSections)}</b></div>
           <div><span>Comparecimento</span><b>{percent(result?.turnout)}</b></div>
@@ -167,23 +204,31 @@ export default function Dashboard() {
 
       <article className="map-card">
         <div className="map-top">
-          <nav className="crumbs" aria-label="Navegação"><button onClick={goBrazil} className={!state ? 'on' : ''}>Brasil</button>{state && <><span>/</span><button className={!city ? 'on' : ''} onClick={() => setCity(null)}>{state.properties.nome}</button></>}{city && <><span>/</span><span className="on">{city.properties.nome}</span></>}</nav>
-          <div className="seg small" role="group" aria-label="Modo do mapa">{(['Vencedor', 'Participação'] as const).map(item => <button key={item} onClick={() => setView(item)} className={view === item ? 'on' : ''}>{item}</button>)}</div>
+          {scope === 'exterior' ? <nav className="crumbs"><button onClick={() => setScope('brasil')}>Brasil</button><span>/</span><span className="on">Exterior</span></nav> : <nav className="crumbs" aria-label="Navegação"><button onClick={goBrazil} className={!state ? 'on' : ''}>Brasil</button>{state && <><span>/</span><button className={!city ? 'on' : ''} onClick={() => setCity(null)}>{state.properties.nome}</button></>}{city && <><span>/</span><span className="on">{city.properties.nome}</span></>}</nav>}
+          {scope === 'brasil' && <div className="seg small" role="group" aria-label="Modo do mapa">{(['Vencedor', 'Participação'] as const).map(item => <button key={item} onClick={() => setView(item)} className={view === item ? 'on' : ''}>{item}</button>)}</div>}
         </div>
-        <div className="map-frame">{busy && !mapData.features.length ? <div className="map-loading"><span className="spinner" />Carregando limites oficiais do IBGE…</div> : mapData.features.length ? <MapView data={mapData} level={level} selectedCode={city?.properties.codarea ?? state?.properties.codarea} outcomes={mapOutcomes} mode={view} onSelect={selectFeature} /> : <div className="map-error">{mapError || 'Nenhuma área geográfica disponível.'}<button onClick={() => location.reload()}>Tentar novamente</button></div>}
+        <div className="map-frame">{scope === 'exterior' ? (exterior ? <WorldMap cities={exterior.cities} candidates={exterior.total.candidates} /> : resultError ? <div className="map-error">{resultError}</div> : <div className="map-loading"><span className="spinner" />Carregando votos no exterior…</div>) : busy && !mapData.features.length ? <div className="map-loading"><span className="spinner" />Carregando limites oficiais do IBGE…</div> : mapData.features.length ? <MapView data={mapData} level={level} selectedCode={city?.properties.codarea ?? state?.properties.codarea} outcomes={mapOutcomes} mode={view} onSelect={selectFeature} /> : <div className="map-error">{mapError || 'Nenhuma área geográfica disponível.'}<button onClick={() => location.reload()}>Tentar novamente</button></div>}
+          <AlertBanner alert={banner} states={states} photos={photos} />
           {state && <button className="map-reset" onClick={goBrazil}>← Brasil</button>}
-          <div className="legend">{view === 'Participação' ? 'Cor = comparecimento' : 'Cor mais forte = maior vantagem'}{ranked.slice(0, 2).map(c => <span key={c.candidateId}><i style={{ background: c.color }} />{c.party}</span>)}</div>
+          <div className="legend">{scope === 'exterior' ? 'Círculo = nº de eleitores' : view === 'Participação' ? 'Cor = comparecimento' : 'Cor mais forte = maior vantagem'}{ranked.slice(0, 2).map(c => <span key={c.candidateId}><i style={{ background: c.color }} />{c.party}</span>)}</div>
         </div>
       </article>
 
       <aside className="panel right-panel">
-        <div className="r-head"><div><h3>{area ? area.properties.nome : 'Brasil'}</h3><p className="sub">{city ? `${state?.properties.nome} · ${state?.properties.sigla}` : state ? `Unidade federativa · ${state.properties.sigla}` : 'Selecione um estado no mapa'}</p></div><span className="badge">{round}º TURNO</span></div>
-        {!result && needsState && <div className="results-empty"><b>Selecione um estado</b><p>Os candidatos a {office} são definidos por estado. Clique em uma UF no mapa para ver nomes, fotos e votos.</p></div>}{!result && !needsState && <div className="results-empty"><b>{unavailable}</b><p>Aguarde a resposta oficial do TSE para esta localidade, cargo e turno.</p><a href="https://resultados.tse.jus.br/oficial/app/index.html" target="_blank" rel="noreferrer">Abrir divulgação oficial do TSE ↗</a></div>}
-        {result && <div className="cands">{ranked.length > 8 && <input className="list-filter" placeholder={`Buscar entre ${format(ranked.length)} candidatos…`} value={listFilter} onChange={e => setListFilter(e.target.value)} />}{visible.map(c => <div className="cand" key={c.candidateId}><span className="rank">{String(ranked.indexOf(c) + 1).padStart(2, '0')}</span><Avatar c={c} cls="cphoto" /><div className="cinfo"><b>{c.name}</b><small>{c.party}</small><div className="vbar"><i style={{ width: `${c.percentage}%`, background: c.color }} /></div></div><div className="cvote"><b>{percent(c.percentage)}</b><small>{format(c.votes)}</small></div></div>)}
+        <div className="r-head"><div><h3>{scope === 'exterior' ? 'Exterior' : area ? area.properties.nome : 'Brasil'}</h3><p className="sub">{scope === 'exterior' ? `${format(exterior?.cities.length)} cidades no mapa · ${format(result?.totalizedSections)} seções` : city ? `${state?.properties.nome} · ${state?.properties.sigla}` : state ? `Unidade federativa · ${state.properties.sigla}` : 'Selecione um estado no mapa'}</p></div><span className="badge">{result?.round ?? round}º TURNO</span></div>
+        {!result && needsState && <div className="results-empty"><b>Selecione um estado</b><p>Os candidatos a {office} são definidos por estado. Clique em uma UF no mapa para ver nomes, fotos e votos.</p></div>}{!result && !needsState && <div className="results-empty"><b>{unavailable}</b><p>Aguarde a resposta oficial do TSE para esta localidade, cargo e turno.</p>{resultError && <p className="err-detail">{resultError}</p>}<a href="https://resultados.tse.jus.br/oficial/app/index.html" target="_blank" rel="noreferrer">Abrir divulgação oficial do TSE ↗</a></div>}
+        {result && scope === 'exterior' && <div className="cands">
+          {ranked.slice(0, 3).map(c => <div className="cand" key={c.candidateId}><Avatar c={c} cls="cphoto" /><div className="cinfo"><b>{c.name}</b><small>{c.party}</small><div className="vbar"><i style={{ width: `${c.percentage}%`, background: c.color }} /></div></div><div className="cvote"><b>{percent(c.percentage)}</b><small>{format(c.votes)}</small></div></div>)}
+          <div className="section-title"><span>Por país</span><span>{countries.length} países</span></div>
+          {countries.map(c => <div className="country" key={c.iso}><span className="iso" style={{ background: c.winner?.color ?? '#2a3140' }}>{c.iso}</span><div className="cinfo"><b>{c.country}</b><small>{c.cities} {c.cities === 1 ? 'cidade' : 'cidades'} · {format(c.voters)} eleitores</small></div><div className="cwin"><Avatar c={c.winner} cls="mini-av" /><b style={{ color: c.winner?.color }}>{c.winnerPct.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</b></div></div>)}
+          {exterior && exterior.unmatched.length > 0 && <p className="empty-note">{exterior.unmatched.length} cidades sem coordenada no mapa (já contam no total acima).</p>}
+        </div>}
+        {result && scope === 'brasil' && <div className="cands">{ranked.length > 8 && <input className="list-filter" placeholder={`Buscar entre ${format(ranked.length)} candidatos…`} value={listFilter} onChange={e => setListFilter(e.target.value)} />}{visible.map(c => <div className="cand" key={c.candidateId}><span className="rank">{String(ranked.indexOf(c) + 1).padStart(2, '0')}</span><Avatar c={c} cls="cphoto" /><div className="cinfo"><b>{c.name}</b><small>{c.party}</small><div className="vbar"><i style={{ width: `${c.percentage}%`, background: c.color }} /></div></div><div className="cvote"><b>{percent(c.percentage)}</b><small>{format(c.votes)}</small></div></div>)}
           {!term && filtered.length > 12 && <button className="more" onClick={() => setShowAll(v => !v)}>{showAll ? 'Mostrar menos' : `Ver todos (${format(filtered.length)})`}</button>}{term && filtered.length === 0 && <p className="empty-note">Nenhum candidato encontrado.</p>}<div className="kpis two"><div><span>Votos válidos</span><b>{format(result.validVotes)}</b></div><div><span>Abstenções</span><b>{format(result.abstentions)}</b></div></div></div>}
         <div className="r-foot"><span>Última atualização</span><b>{updateAt ?? 'Não informada'}</b><span>✓ Fontes oficiais: TSE + IBGE</span></div>
       </aside>
     </section>
     <footer className="foot"><span>Apuração Brasil · Informação para fortalecer a democracia.</span><span className="social-links"><a href="https://www.instagram.com/euodeene" target="_blank" rel="noreferrer">Instagram @euodeene</a><a href="https://x.com/euodeene" target="_blank" rel="noreferrer">X</a><a href="https://github.com/danielfinotti2-spec" target="_blank" rel="noreferrer">GitHub</a></span></footer>
+  <FeedDrawer alerts={alerts} open={feedOpen} onClose={() => { setFeedOpen(false); setSeen(alerts.length); }} />
   </main>;
 }

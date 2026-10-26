@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   try {
     const data = await getOfficialResult({ localityCode, uf, year: Number(year), office, round });
     return NextResponse.json(data, { headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60' } });
-  } catch {
-    return NextResponse.json({ error: 'Dados oficiais indisponíveis no momento', source: 'TSE' }, { status: 503 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Dados oficiais indisponíveis no momento', source: 'TSE', detail: error instanceof Error ? error.message : String(error) }, { status: 503 });
   }
 }

@@ -1,4 +1,5 @@
 import type { CandidateResult, ElectionResult } from '@/types/geo';
+import { locate } from './geo-exterior';
 
 const ORIGIN = 'https://resultados.tse.jus.br/oficial';
 const COLORS = ['#ef3340', '#4a6cf0', '#f0ac68', '#aa91df', '#64c9a3', '#d4c66c', '#70c6d2', '#da8299'];
@@ -24,7 +25,7 @@ function colorFor(candidateId: string): string {
 
 async function fetchJson<T>(url: string, revalidate: number): Promise<T> {
   const response = await fetch(url, { next: { revalidate }, headers: { Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`TSE respondeu ${response.status}`);
+  if (!response.ok) throw new Error(`TSE respondeu ${response.status} em ${url}`);
   return response.json();
 }
 
@@ -38,9 +39,22 @@ async function officialMunicipality(ibgeCode: string, cycle: string, electionCod
   throw new Error('Código municipal IBGE não encontrado na tabela oficial do TSE.');
 }
 
-export async function getOfficialResult(input: {
-  localityCode: string; uf?: string; year: number; round: number; office: string;
-}): Promise<ElectionResult> {
+type ResultInput = { localityCode: string; uf?: string; year: number; round: number; office: string };
+
+// Senador e deputados não têm 2º turno, e governador só em alguns estados.
+// Nesses casos mostramos o 1º turno, marcando `fellBack` para a interface avisar.
+export async function getOfficialResult(input: ResultInput): Promise<ElectionResult> {
+  try {
+    return await fetchResult(input);
+  } catch (error) {
+    if (input.round === 2 && normalize(input.office) !== 'presidente') {
+      return { ...(await fetchResult({ ...input, round: 1 })), fellBack: true };
+    }
+    throw error;
+  }
+}
+
+async function fetchResult(input: ResultInput): Promise<ElectionResult> {
   const config = await fetchJson<{ pl: Array<{ c: string; e?: ElectionEntry[] }> }>(`${ORIGIN}/comum/config/ele-c.json`, 300);
   const cycle = `ele${input.year}`;
   const targetOffice = normalize(input.office);
@@ -75,7 +89,7 @@ export async function getOfficialResult(input: {
     color: colorFor(candidate.sqcand),
     photoUrl: candidate.sqcand === '280002542548' ? '/candidates/lula.jpg'
       : candidate.sqcand === '280002551544' ? '/candidates/flavio-bolsonaro.jpg'
-      : `${ORIGIN}/${cycle}/${electionEntry.cd}/fotos/${uf === 'br' ? 'br' : uf}/${candidate.sqcand}.jpeg`,
+      : `${ORIGIN}/${cycle}/${electionEntry.cd}/fotos/${uf === 'zz' ? 'br' : uf}/${candidate.sqcand}.jpeg`,
   }))));
 
   if (!candidates.length) throw new Error('O arquivo oficial do TSE ainda não publicou candidatos para esta localidade.');
@@ -98,3 +112,34 @@ export async function getOfficialResult(input: {
 }
 
 export { colorFor };
+
+export type ExteriorCity = { code: string; name: string; iso: string; country: string; lat: number; lng: number; voters: number; votes: Record<string, number> };
+
+// Resultado do voto no exterior: total (ZZ) + cada cidade com seção eleitoral fora do Brasil.
+export async function getExterior(year: number, round: number) {
+  const total = await getOfficialResult({ localityCode: 'zz', uf: 'zz', year, round, office: 'Presidente' });
+  const config = await fetchJson<{ pl: Array<{ c: string; e?: ElectionEntry[] }> }>(`${ORIGIN}/comum/config/ele-c.json`, 300);
+  const cycle = `ele${year}`;
+  const entry = (config.pl || []).filter(item => item.c === cycle).flatMap(item => item.e || []).find(e => Number(e.t) === round && e.abr.some(a => a.cp.some(j => normalize(j.ds) === 'presidente')));
+  const job = entry?.abr.flatMap(a => a.cp).find(j => normalize(j.ds) === 'presidente');
+  if (!entry || !job) throw new Error('Eleição presidencial não encontrada no TSE.');
+  const pad = entry.cd.padStart(6, '0');
+  const muns = await fetchJson<{ abr: Array<{ cd: string; mu: Array<{ cd: string; nm: string }> }> }>(`${ORIGIN}/${cycle}/${entry.cd}/config/mun-e${pad}-cm.json`, 86400);
+  const list = muns.abr?.find(a => a.cd.toLowerCase() === 'zz')?.mu ?? [];
+  const cities: ExteriorCity[] = [];
+  const unmatched: string[] = [];
+  for (let i = 0; i < list.length; i += 25) {
+    await Promise.all(list.slice(i, i + 25).map(async city => {
+      const place = locate(city.nm);
+      if (!place) { unmatched.push(city.nm); return; }
+      try {
+        const raw = await fetchJson<TSEResultFile>(`${ORIGIN}/${cycle}/${entry.cd}/dados/zz/zz${city.cd}-c${job.cd.padStart(4, '0')}-e${pad}-u.json`, 60);
+        const votes: Record<string, number> = {};
+        (raw.carg?.find(c => c.cd === job.cd)?.agr || []).forEach(g => (g.par || []).forEach(p => (p.cand || []).forEach(c => { votes[c.sqcand] = number(c.vap); })));
+        if (!Object.values(votes).some(v => v > 0)) return;
+        cities.push({ code: city.cd, name: city.nm, iso: place.iso, country: place.country, lat: place.lat, lng: place.lng, voters: number(raw.e?.c) + number(raw.e?.a), votes });
+      } catch { /* cidade ainda sem arquivo publicado */ }
+    }));
+  }
+  return { total, cities, totalCities: list.length, unmatched: unmatched.slice(0, 60) };
+}
