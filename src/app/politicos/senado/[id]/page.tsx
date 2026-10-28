@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import SiteHeader from '@/components/SiteHeader';
 import Seal from '@/components/Seal';
 import CountUp from '@/components/CountUp';
+import PartyMark from '@/components/PartyMark';
 import SourceList from '@/components/SourceList';
 import { getSenadorProfile } from '@/services/senado';
 import { formatDate } from '@/lib/format';
@@ -49,7 +50,8 @@ export default async function SenadorPage({ params }: { params: Promise<{ id: st
           <div className="profile-id">
             <div className="profile-tags">
               <span className="status-tag on">{p.office}</span>
-              <span className="status-tag">{p.party} / {p.uf}</span>
+              <PartyMark party={p.party} size="md" />
+              <span className="status-tag">{p.uf}</span>
               <Seal status="oficial-confirmada" />
             </div>
             <h1>{p.name}</h1>

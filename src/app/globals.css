@@ -399,6 +399,17 @@ body:has(.site){background:#f4f4f1}
   .masthead-search{flex-direction:column}
 }
 
+/* símbolos — distintivos partidários e glifos de fonte */
+.party-mark{transition:transform .25s cubic-bezier(.22,.68,.24,1)}
+.pol-card:hover .party-mark{transform:scale(1.07)}
+.party-line{display:inline-flex;align-items:center;gap:7px}
+.cinfo .party-line{gap:5px}
+.source-flex{display:inline-flex;align-items:center;gap:11px;min-width:0}
+.source-mark{color:#8b9189}
+.source-flex:hover .source-mark{color:var(--accent)}
+.sources-section .source-mark{color:var(--accent)}
+.sources-section .sync-warning li{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
 /* ================================================================
    MOVIMENTO — entrada orquestrada + microinterações contidas
    Curva suave sem overshoot; desligada com prefers-reduced-motion.

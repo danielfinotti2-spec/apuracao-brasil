@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import PartyMark from '@/components/PartyMark';
 import type { PoliticianListResult, PoliticianSummary } from '@/types/politician';
 
 const BRAZIL_UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
@@ -123,7 +124,7 @@ export default function PoliticosClient() {
                 <Photo p={p} />
                 <div className="pol-info">
                   <b>{p.name}</b>
-                  <small>{CHAMBER_LABEL[p.chamber]} — {p.party} / {p.uf}</small>
+                  <small className="party-line"><PartyMark party={p.party} /> {p.uf}</small>
                 </div>
                 <span className="house-tag">{CHAMBER_LABEL[p.chamber]}</span>
               </Link>

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import SiteHeader from '@/components/SiteHeader';
 import Seal from '@/components/Seal';
 import CountUp from '@/components/CountUp';
+import PartyMark from '@/components/PartyMark';
 import SourceList from '@/components/SourceList';
 import { getDeputadoProfile } from '@/services/camara';
 import { formatDate, formatDateTime, formatMoney, MONTHS } from '@/lib/format';
@@ -40,7 +41,8 @@ export default async function DeputadoPage({ params }: { params: Promise<{ id: s
           <div className="profile-id">
             <div className="profile-tags">
               <span className="status-tag on">{p.office}</span>
-              <span className="status-tag">{p.party} / {p.uf}</span>
+              <PartyMark party={p.party} size="md" />
+              <span className="status-tag">{p.uf}</span>
               {profile.status && <span className="status-tag">{profile.status}</span>}
               <Seal status="oficial-confirmada" />
             </div>

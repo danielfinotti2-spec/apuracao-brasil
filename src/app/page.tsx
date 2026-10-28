@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import SiteHeader from '@/components/SiteHeader';
 import CountUp from '@/components/CountUp';
+import SourceMark from '@/components/SourceMark';
 import { listAllPoliticians } from '@/services/politicians';
 
 export const metadata = {
@@ -96,32 +97,32 @@ export default async function Home() {
             </thead>
             <tbody>
               <tr>
-                <td><a href="https://dadosabertos.camara.leg.br/swagger/api.html" target="_blank" rel="noreferrer">Câmara dos Deputados — Dados Abertos</a></td>
+                <td><span className="source-flex"><SourceMark name="Câmara dos Deputados" size={24} /><a href="https://dadosabertos.camara.leg.br/swagger/api.html" target="_blank" rel="noreferrer">Câmara dos Deputados — Dados Abertos</a></span></td>
                 <td>Lista e perfil de deputados, despesas, proposições e agenda oficial.</td>
                 <td className="num"><span className="status-tag on">integrada</span></td>
               </tr>
               <tr>
-                <td><a href="https://legis.senado.leg.br/dadosabertos/api-docs/swagger-ui/index.html" target="_blank" rel="noreferrer">Senado Federal — Dados Abertos</a></td>
+                <td><span className="source-flex"><SourceMark name="Senado Federal" size={24} /><a href="https://legis.senado.leg.br/dadosabertos/api-docs/swagger-ui/index.html" target="_blank" rel="noreferrer">Senado Federal — Dados Abertos</a></span></td>
                 <td>Lista e perfil de senadores, votações nominais.</td>
                 <td className="num"><span className="status-tag on">integrada</span></td>
               </tr>
               <tr>
-                <td><a href="https://resultados.tse.jus.br/oficial/app/index.html" target="_blank" rel="noreferrer">TSE — Divulgação de resultados</a></td>
+                <td><span className="source-flex"><SourceMark name="TSE" size={24} /><a href="https://resultados.tse.jus.br/oficial/app/index.html" target="_blank" rel="noreferrer">TSE — Divulgação de resultados</a></span></td>
                 <td>Apuração por cargo, turno e localidade no mapa eleitoral.</td>
                 <td className="num"><span className="status-tag on">integrada</span></td>
               </tr>
               <tr>
-                <td><a href="https://servicodados.ibge.gov.br/api/docs/" target="_blank" rel="noreferrer">IBGE — Localidades e Malhas</a></td>
+                <td><span className="source-flex"><SourceMark name="IBGE" size={24} /><a href="https://servicodados.ibge.gov.br/api/docs/" target="_blank" rel="noreferrer">IBGE — Localidades e Malhas</a></span></td>
                 <td>Limites de estados e municípios usados no mapa.</td>
                 <td className="num"><span className="status-tag on">integrada</span></td>
               </tr>
               <tr>
-                <td><a href="https://dadosabertos.tse.jus.br/" target="_blank" rel="noreferrer">TSE — Repositório de dados eleitorais</a></td>
+                <td><span className="source-flex"><SourceMark name="TSE Dados Abertos" size={24} /><a href="https://dadosabertos.tse.jus.br/" target="_blank" rel="noreferrer">TSE — Repositório de dados eleitorais</a></span></td>
                 <td>Candidaturas históricas, resultados completos e fotografias.</td>
                 <td className="num"><span className="status-tag">planejada</span></td>
               </tr>
               <tr>
-                <td><a href="https://portaldatransparencia.gov.br/" target="_blank" rel="noreferrer">Portal da Transparência</a></td>
+                <td><span className="source-flex"><SourceMark name="Portal da Transparência" size={24} /><a href="https://portaldatransparencia.gov.br/" target="_blank" rel="noreferrer">Portal da Transparência</a></span></td>
                 <td>Despesas do Executivo e dados de viagens.</td>
                 <td className="num"><span className="status-tag">planejada</span></td>
               </tr>
