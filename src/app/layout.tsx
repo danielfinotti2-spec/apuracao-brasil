@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import VisitBeacon from '@/components/VisitBeacon';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </div>
         </div>
         {children}
+        <VisitBeacon />
       </body>
     </html>
   );

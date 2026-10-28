@@ -1023,3 +1023,12 @@ a.exec-card:hover{transform:translateY(-1px);border-color:var(--accent);box-shad
 .exec-card .party-mark{vertical-align:-1px}
 @media(max-width:560px){.exec-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:380px){.exec-grid{grid-template-columns:1fr}}
+
+/* ================================================================
+   FASE 14 — fotos dos executivos + contador de visitas
+   ================================================================ */
+.exec-photo{width:44px;height:52px;object-fit:cover;object-position:center 12%;border-radius:5px;flex:none;
+  border:1px solid var(--lineP);background:#e3e4de}
+.exec-photo.big{width:58px;height:68px;border-radius:8px}
+.visits-counter{font-size:11px;color:var(--faintP);font-weight:400}
+.visits-counter b{color:var(--mutedP);font-weight:600}

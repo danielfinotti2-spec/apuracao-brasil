@@ -7,6 +7,7 @@ import SourceList from '@/components/SourceList';
 import Collapsible from '@/components/Collapsible';
 import { pickLang, t } from '@/i18n/messages';
 import type { SourceRef } from '@/types/politician';
+import { PRESIDENT_PHOTO } from '@/data/executive-photos';
 
 export const metadata = {
   title: 'Presidente da República | Fiscaliza Brasil',
@@ -33,7 +34,9 @@ export default async function PresidentePage({ searchParams }: { searchParams: P
       <SiteHeader active="politicos" lang={L} />
       <div className="site-body profile-view">
         <header className="profile-header a">
-          <div className="profile-photo mono" aria-hidden="true"><span>PR</span></div>
+          {PRESIDENT_PHOTO
+            ? <img className="profile-photo" src={PRESIDENT_PHOTO.src} alt="Luiz Inácio Lula da Silva" referrerPolicy="no-referrer" />
+            : <div className="profile-photo mono" aria-hidden="true"><span>PR</span></div>}
           <div>
             <p className="profile-chamber"><span className="dot" />{t(L, 'pres.type')}</p>
             <h1>Luiz Inácio Lula da Silva <Seal status="oficial-confirmada" lang={L} /></h1>

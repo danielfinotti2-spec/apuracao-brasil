@@ -314,6 +314,7 @@ const VALUES = {
   'may.sub': { pt: 'Eleitos nas urnas em outubro de 2024 (TSE) nas 26 capitais. Municípios menores não têm API oficial unificada; o bloco faz o mais honesto: mostra quem venceu a eleição na capital, com a regra editorial declarada.', en: 'Elected at the polls in October 2024 (TSE) in the 26 state capitals. Smaller municipalities have no unified official API; the block does the honest thing: it shows who won each capital election, with the editorial rule declared.', es: 'Elegidos en las urnas en octubre de 2024 (TSE) en las 26 capitales. Los municipios menores no tienen API oficial unificada; el bloque hace lo más honesto: muestra quién ganó cada elección de capital, con la regla editorial declarada.' },
   'may.df': { pt: 'Brasília não tem prefeito: o Distrito Federal é unidade federativa administrada por governador (bloco acima).', en: 'Brasília has no mayor: the Federal District is a federative unit run by a governor (block above).', es: 'Brasília no tiene alcalde: el Distrito Federal es una unidad federativa administrada por gobernador (bloque de arriba).' },
   'exec.election': { pt: 'Fonte eleitoral: resultados oficiais do TSE', en: 'Electoral source: official TSE results', es: 'Fuente electoral: resultados oficiales del TSE' },
+  'visits.label': { pt: 'Visitas agregadas', en: 'Aggregate visits', es: 'Visitas agregadas' },
 } as const;
 
 export type DictKey = keyof typeof VALUES;
