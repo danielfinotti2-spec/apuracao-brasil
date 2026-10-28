@@ -154,6 +154,19 @@ test('home: mapa e módulos principais na dobra inicial', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Mapa da representação' })).toBeVisible();
 });
 
+test('mobile: hambúrguer organiza o header e abre a navegação', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await expect(page.locator('.site-nav')).toBeHidden();
+  const burger = page.getByRole('button', { name: 'Abrir menu' });
+  await expect(burger).toBeVisible();
+  await burger.click();
+  const panel = page.locator('.mobile-nav-panel');
+  await expect(panel).toBeVisible();
+  await panel.getByRole('link', { name: 'Rankings' }).click();
+  await expect(page).toHaveURL(/\/rankings/);
+});
+
 test('metodologia: exibe os quatro selos e as regras', async ({ page }) => {
   await page.goto('/metodologia');
   await expect(page.getByRole('heading', { name: 'Metodologia de verificação' })).toBeVisible();

@@ -141,7 +141,7 @@ body:has(.site){background:#f4f4f1}
 .site{
   --paper:#f4f4f1;--surface:#ffffff;--lineP:#e0e1da;--lineS:#c9ccc0;
   --inkP:#1f241e;--mutedP:#5d665c;--faintP:#8b9189;
-  --accent:#146c43;--accentInk:#0e5131;--danger:#a32020;
+  --accent:#146c43;--accentSoft:#e4f1e9;--accentInk:#0e5131;--danger:#a32020;
   --warnBg:#faf3e0;--warnLine:#e0cfa0;--warnInk:#6f5615;
   max-width:1180px;margin:0 auto;min-height:100vh;background:var(--paper);
   color:var(--inkP);font-family:'IBM Plex Sans',system-ui,sans-serif;
@@ -162,7 +162,7 @@ body:has(.site){background:#f4f4f1}
 .site .brand-mark i:nth-child(3){height:11px;background:#002776}
 .site-nav{display:flex;gap:22px;margin-left:auto;flex-wrap:wrap}
 .site-nav a{text-decoration:none;color:var(--mutedP);font-size:14px;font-weight:500;padding:4px 0;border-bottom:2px solid transparent}
-.site-nav a.on{color:var(--inkP);border-bottom-color:var(--accent);font-weight:600}
+.site-nav a.on,.site-nav a.active{color:var(--inkP);border-bottom-color:var(--accent);font-weight:600}
 .site-nav a:hover{color:var(--inkP)}
 .site-body{padding:0 24px;flex:1;display:flex;flex-direction:column}
 
@@ -550,7 +550,7 @@ html[data-theme="dark"] body:has(.site){background:#101310}
 html[data-theme="dark"] .site{
   --paper:#101310;--surface:#181c17;--lineP:#262b24;--lineS:#3a4036;
   --inkP:#edf0ea;--mutedP:#a5ada2;--faintP:#7a8275;
-  --accent:#4fae7e;--accentInk:#7fcfa6;--danger:#e06c6c;
+  --accent:#4fae7e;--accentSoft:#1f3327;--accentInk:#7fcfa6;--danger:#e06c6c;
   --warnBg:#2a2415;--warnLine:#5d4f22;--warnInk:#d8c281;
 }
 html[data-theme="dark"] .site .btn:hover,
@@ -853,4 +853,35 @@ html[data-theme="dark"] .pres-card .profile-photo.mono{background:linear-gradien
   .pix-box{flex-direction:column;align-items:stretch}
   .pix-qr{width:100%;height:auto;aspect-ratio:121/111;padding:10px}
   .pix-qr img{height:auto;aspect-ratio:121/111;object-fit:contain}
+}
+
+/* ================================================================
+   FASE 10 — hambúrguer no mobile
+   ================================================================ */
+.mobile-menu{display:none}
+@media(max-width:760px){
+  .site-nav{display:none}
+  .mobile-menu{display:block;position:relative}
+  .burger{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4.5px;
+    width:38px;height:38px;border:1px solid var(--lineP);border-radius:4px;background:var(--surface);cursor:pointer;padding:0}
+  .burger span{display:block;width:17px;height:2px;background:var(--inkP);border-radius:2px;
+    transition:transform .35s cubic-bezier(.22,.68,.24,1),opacity .2s ease}
+  .mobile-menu.open .burger span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+  .mobile-menu.open .burger span:nth-child(2){opacity:0}
+  .mobile-menu.open .burger span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+  .mobile-nav-panel{position:absolute;top:calc(100% + 13px);right:0;width:min(260px,80vw);
+    background:var(--surface);border:1px solid var(--lineP);border-radius:8px;
+    box-shadow:0 16px 40px rgba(13,43,25,.16);z-index:60;
+    opacity:0;visibility:hidden;transform:translateY(-10px) scale(.98);transform-origin:top right;
+    transition:opacity .25s ease,transform .35s cubic-bezier(.22,.68,.24,1),visibility .25s}
+  .mobile-menu.open .mobile-nav-panel{opacity:1;visibility:visible;transform:none}
+  .mobile-nav-inner{display:flex;flex-direction:column;padding:8px}
+  .mobile-nav-inner a{padding:11px 12px;border-radius:6px;text-decoration:none;color:var(--inkP);font-size:14px;font-weight:500}
+  .mobile-nav-inner a:hover{background:#f3f6f2}
+  .mobile-nav-inner a.active{background:var(--accentSoft);color:var(--accent);font-weight:650}
+  .mobile-nav-inner a+a{margin-top:2px}
+}
+@media (prefers-reduced-motion: reduce){
+  .burger span,.mobile-nav-panel{transition:none!important}
+  .mobile-nav-panel{transform:none}
 }

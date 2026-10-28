@@ -307,6 +307,7 @@ const VALUES = {
   'pres.links.bio': { pt: 'Conheça a Presidência — biografia oficial', en: 'Know the Presidency — official biography', es: 'Conozca la Presidencia — biografía oficial' },
   'pres.links.ago': { pt: 'Abrir a agenda de compromissos oficial', en: 'Open the official commitments agenda', es: 'Abrir la agenda de compromisos oficial' },
   'pres.card': { pt: 'Ver o perfil do Presidente e links oficiais da agenda, biografia e subsídio.', en: 'See the President’s profile and official links to agenda, biography and salary.', es: 'Ver el perfil del Presidente y enlaces oficiales de agenda, biografía y subsidio.' },
+  'nav.menu': { pt: 'Abrir menu', en: 'Open menu', es: 'Abrir menú' },
 } as const;
 
 export type DictKey = keyof typeof VALUES;

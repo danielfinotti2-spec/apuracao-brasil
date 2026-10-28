@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import ThemeToggle from './ThemeToggle';
 import LangSwitcher from './LangSwitcher';
+import MobileMenu from './MobileMenu';
 import { t, type Locale } from '@/i18n/messages';
 
 export default function SiteHeader({ active, lang = 'pt' }: { active?: string; lang?: Locale }) {
@@ -22,6 +23,7 @@ export default function SiteHeader({ active, lang = 'pt' }: { active?: string; l
         </nav>
         <LangSwitcher lang={lang} />
         <ThemeToggle lang={lang} />
+        <MobileMenu active={active} lang={lang} />
       </header>
     </>
   );
