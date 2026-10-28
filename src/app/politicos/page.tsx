@@ -10,9 +10,11 @@ export default function PoliticosPage() {
   return (
     <main className="site">
       <SiteHeader />
-      <PoliticosClient />
+      <div className="site-body">
+        <PoliticosClient />
+      </div>
       <footer className="foot">
-        <span>Fiscaliza Brasil · dados coletados das APIs oficiais e marcados com fonte e data de coleta.</span>
+        <span>Fiscaliza Brasil — dados coletados das APIs oficiais e marcados com fonte e data de coleta.</span>
         <span className="social-links">
           <a href="https://www.instagram.com/euodeene" target="_blank" rel="noreferrer">Instagram @euodeene</a>
           <a href="https://x.com/euodeene" target="_blank" rel="noreferrer">X</a>

@@ -66,11 +66,11 @@ export default function PoliticosClient() {
             {fetchedAt && <> Última sincronização: <b>{fetchedAt}</b> (horário de Brasília).</>}
           </p>
         </div>
-        {data && <span className="badge">{data.politicians.length} mandatos em exercício</span>}
+        {data && <span className="count-tag">{data.politicians.length} mandatos em exercício</span>}
       </div>
 
       <div className="filters" role="search">
-        <div className="search-wrap wide">
+        <div className="search-wrap">
           <span className="search-icon">⌕</span>
           <input aria-label="Buscar político por nome" placeholder="Buscar por nome…" value={query} onChange={e => setQuery(e.target.value)} />
           {query && <button className="clear-search" onClick={() => setQuery('')} aria-label="Limpar busca">×</button>}
@@ -91,7 +91,7 @@ export default function PoliticosClient() {
       </div>
 
       {error && (
-        <div className="results-empty directory-note">
+        <div className="directory-note">
           <b>{error}</b>
           <p>O portal só exibe o que as fontes oficiais publicam. Tente novamente em instantes.</p>
           <button className="btn" onClick={() => location.reload()}>Tentar novamente</button>
@@ -100,8 +100,10 @@ export default function PoliticosClient() {
 
       {data?.failedSources.length ? (
         <div className="sync-warning" role="alert">
-          ⚠ Fontes indisponíveis nesta sincronização:
-          {data.failedSources.map(f => <span key={f.name} className="err-detail"> {f.name}: {f.error}</span>)}
+          <b>Fontes indisponíveis nesta sincronização:</b>
+          <ul>
+            {data.failedSources.map(f => <li key={f.name}>{f.name} — <span className="err-detail">{f.error}</span></li>)}
+          </ul>
         </div>
       ) : null}
 
@@ -109,22 +111,22 @@ export default function PoliticosClient() {
 
       {data && (
         <>
-          <p className="result-count">{filtered.length} de {data.politicians.length} políticos</p>
+          <p className="result-count" aria-live="polite">{filtered.length} de {data.politicians.length} políticos</p>
           <div className="pol-grid">
             {filtered.map(p => (
               <Link key={`${p.chamber}-${p.id}`} className="pol-card" href={`/politicos/${p.chamber}/${p.id}`}>
                 <Photo p={p} />
                 <div className="pol-info">
                   <b>{p.name}</b>
-                  <small>{CHAMBER_LABEL[p.chamber]} · {p.party} · {p.uf}</small>
+                  <small>{CHAMBER_LABEL[p.chamber]} — {p.party} / {p.uf}</small>
                 </div>
-                <span className="pol-arrow">→</span>
+                <span className="house-tag">{CHAMBER_LABEL[p.chamber]}</span>
               </Link>
             ))}
             {filtered.length === 0 && <p className="empty-note">Nenhum político encontrado com esses filtros.</p>}
           </div>
           <p className="sources-line">
-            Fontes: {data.sources.map(s => s.name).join(' · ')} — cada perfil lista as URLs exatas consultadas.
+            Fontes: {data.sources.map(s => s.name).join(' e ')}. Cada perfil lista as URLs exatas consultadas.
           </p>
         </>
       )}

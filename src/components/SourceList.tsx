@@ -11,16 +11,19 @@ export default function SourceList({ sources, failed }: { sources: SourceRef[]; 
         {sources.map((s, i) => (
           <li key={i}>
             <span className="seal seal-ok"><i />Fonte oficial confirmada</span>
-            <div><b>{s.name}</b><small>coletado em {formatDateTime(s.fetchedAt)}</small></div>
-            <a href={s.url.split(' | ')[0]} target="_blank" rel="noreferrer">{s.url.split(' | ').length > 1 ? `ver 1ª URL (de ${s.url.split(' | ').length})` : 'abrir URL consultada'} ↗</a>
+            <div>
+              <b>{s.name}</b>
+              <small>coletado em {formatDateTime(s.fetchedAt)}{s.url.includes(' | ') ? ` — ${s.url.split(' | ').length} URLs paginadas` : ''}</small>
+            </div>
+            <a href={s.url.split(' | ')[0]} target="_blank" rel="noreferrer">abrir URL consultada</a>
           </li>
         ))}
       </ul>
       {failed.length > 0 && (
         <div className="sync-warning" role="alert">
-          ⚠ Consultas que falharam e não geraram dados nesta página:
+          <b>Consultas que falharam e não geraram dados nesta página:</b>
           <ul>
-            {failed.map((f, i) => <li key={i}><b>{f.name}</b> — <span className="err-detail">{f.error}</span></li>)}
+            {failed.map((f, i) => <li key={i}>{f.name} — <span className="err-detail">{f.error}</span></li>)}
           </ul>
         </div>
       )}

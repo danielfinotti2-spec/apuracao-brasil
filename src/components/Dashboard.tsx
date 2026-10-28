@@ -157,7 +157,7 @@ export default function Dashboard() {
       <Link className="brand" href="/" aria-label="Fiscaliza Brasil, início"><span className="brand-mark"><i /><i /><i /></span><span className="brand-text"><b>fiscaliza</b> brasil</span></Link>
       <div className="seg" role="group" aria-label="Escopo">{(['brasil', 'exterior'] as const).map(item => <button key={item} className={scope === item ? 'on' : ''} onClick={() => { if (item === 'exterior') { setOffice('Presidente'); goBrazil(); } setScope(item); }}>{item === 'brasil' ? 'Brasil' : 'Exterior'}</button>)}</div>
       <nav className="tabs" aria-label="Cargo">{offices.map(item => <button key={item} className={office === item ? 'on' : ''} onClick={() => { setOffice(item); if (item !== 'Presidente') setScope('brasil'); }}>{item}</button>)}</nav>
-      <div className="top-meta">TSE · IBGE</div>
+      <div className="top-meta">TSE + IBGE</div>
       <div className="top-actions">
         <button className={`feed-btn ${feedOpen ? 'on' : ''}`} onClick={() => { setFeedOpen(v => !v); setSeen(alerts.length); }}><span className="live-dot" />Avisos{!feedOpen && alerts.length > seen && <em>{alerts.length - seen}</em>}</button>
         <div className="search-wrap"><span className="search-icon">⌕</span><input aria-label="Buscar estado ou município" placeholder="Buscar estado ou município…" value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => { if (e.key === 'Escape') setSearch(''); if (e.key === 'Enter' && matching[0]) searchSelect(matching[0]); }} />{search && <button className="clear-search" onClick={() => setSearch('')} aria-label="Limpar busca">×</button>}
