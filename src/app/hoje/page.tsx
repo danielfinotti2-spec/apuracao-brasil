@@ -12,6 +12,7 @@ import { formatDateTime } from '@/lib/format';
 import { pickLang, t } from '@/i18n/messages';
 
 export const revalidate = 900;
+export const maxDuration = 60;
 
 export const metadata = {
   title: 'O que seu eleito fez hoje | Fiscaliza Brasil',

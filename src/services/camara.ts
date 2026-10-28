@@ -95,13 +95,18 @@ export async function getDeputadoProfile(id: string): Promise<CamaraProfile | nu
   };
 
   // Despesas: páginas recentes (limite de 300 lançamentos para manter a página leve).
+  // Página 1 primeiro; páginas 2 e 3 em paralelo apenas quando existe "next".
   const expensesPromise = (async () => {
     const url = `${API}/deputados/${id}/despesas?ordem=DESC&ordenarPor=ano&itens=100&pagina=1`;
+    const build = (page: number) => `${API}/deputados/${id}/despesas?ordem=DESC&ordenarPor=ano&itens=100&pagina=${page}`;
+    const results = [await fetchTrackedJson<{ dados: ApiDespesa[]; links?: { rel: string }[] }>(build(1), 1800)];
+    if ((results[0].data.links ?? []).some(l => l.rel === 'next') && (results[0].data.dados ?? []).length) {
+      const extra = await Promise.all([build(2), build(3)].map(u => fetchTrackedJson<{ dados: ApiDespesa[]; links?: { rel: string }[] }>(u, 1800)));
+      results.push(...extra);
+    }
     const rows: ApiDespesa[] = [];
     const urls: string[] = [];
-    for (let page = 1; page <= 3; page++) {
-      const pageUrl = `${API}/deputados/${id}/despesas?ordem=DESC&ordenarPor=ano&itens=100&pagina=${page}`;
-      const result = await fetchTrackedJson<{ dados: ApiDespesa[]; links?: { rel: string }[] }>(pageUrl, 1800);
+    for (const result of results) {
       urls.push(result.url);
       rows.push(...(result.data.dados ?? []));
       if (!(result.data.links ?? []).some(l => l.rel === 'next') || !(result.data.dados ?? []).length) break;

@@ -8,6 +8,7 @@ import { getTodayData } from '@/services/hoje';
 import { pickLang, t } from '@/i18n/messages';
 
 export const revalidate = 900;
+export const maxDuration = 60;
 
 export const metadata = {
   title: 'Rankings e tabelas | Fiscaliza Brasil',

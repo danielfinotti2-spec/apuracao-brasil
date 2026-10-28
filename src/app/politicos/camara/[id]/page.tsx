@@ -12,6 +12,7 @@ import { formatDate, formatDateTime, formatMoney, MONTHS } from '@/lib/format';
 import { pickLang, t } from '@/i18n/messages';
 
 export const revalidate = 1800;
+export const maxDuration = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
