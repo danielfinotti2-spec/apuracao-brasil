@@ -25,7 +25,8 @@ export default async function HojePage({ searchParams }: { searchParams: Promise
   const q = L === 'pt' ? '' : `?lang=${L}`;
   const localeTag = L === 'en' ? 'en-US' : L === 'es' ? 'es-ES' : 'pt-BR';
   const [today, directory] = await Promise.all([getTodayData(), listAllPoliticians()]);
-  const spotlight = today.proposals[0] ?? null;
+  const MAJOR = new Set(['PL', 'PEC', 'PLP', 'PLV', 'MPV', 'PDL', 'PDC', 'PLN']);
+  const spotlight = today.proposals.find(p => MAJOR.has(p.type)) ?? today.proposals[0] ?? null;
   const gloss: Record<string, string | undefined> = {
     REQ: t(L, 'today.spotType.REQ'),
     PL: t(L, 'today.spotType.PL'),
@@ -73,6 +74,7 @@ export default async function HojePage({ searchParams }: { searchParams: Promise
 
         <div className="hoje-grid">
           <Collapsible id="props" title={t(L, 'today.bills')} defaultOpen>
+            <p className="fine">{t(L, 'today.bills.capped')}</p>
             {today.proposals.length === 0 ? (
               <p className="empty-note">{t(L, 'today.bills.empty')}</p>
             ) : (

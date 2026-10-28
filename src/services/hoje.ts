@@ -38,10 +38,17 @@ type ApiVotacao = { id?: string; siglaOrgao?: string; descricao?: string; dataHo
 // propõe norma, emenda ou fiscalização. Ofícios, redações finiais e
 // requerimentos de votação/retirada de pauta ficam fora para não inflar contagens.
 const SUBSTANTIVE_TYPES = new Set([
-  'PL', 'PEC', 'PLP', 'PLV', 'MPV', 'PDL', 'PDC', 'PLN', 'PLOA', 'PLDO', 'PL', 'RIC', 'INC', 'REQ', 'PRC',
+  'PL', 'PEC', 'PLP', 'PLV', 'MPV', 'PDL', 'PDC', 'PLN', 'RIC', 'INC', 'REQ',
 ]);
 
+// Tipos de maior peso normativo — vencem o empate do "mais recente" no destaque.
+const MAJOR_TYPES = new Set(['PL', 'PEC', 'PLP', 'PLV', 'MPV', 'PDL', 'PDC', 'PLN']);
+
 const normEmenta = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').slice(0, 80);
+
+// Deputado que protocola em série ("lote") não pode enterrar o quadro:
+// no máximo 2 itens visíveis por autor principal (primeiro identificável).
+const MAX_PER_AUTHOR = 2;
 
 /** Monta o quadro do dia. Tolerante a falha parcial (registrada em failedSources). */
 export async function getTodayData(): Promise<TodayData> {
@@ -63,8 +70,8 @@ export async function getTodayData(): Promise<TodayData> {
         seen.add(key);
         return true;
       })
-      .slice(0, 12);
-    const authors = await Promise.all(items.slice(0, 12).map(async p => {
+      .slice(0, 20);
+    const authors = await Promise.all(items.map(async p => {
       try {
         const a = await fetchTrackedJson<{ dados: ApiAutor[] }>(`${API}/proposicoes/${p.id}/autores`, 600);
         return (a.data.dados ?? []).slice(0, 4).map(x => ({
@@ -73,11 +80,21 @@ export async function getTodayData(): Promise<TodayData> {
         }));
       } catch { return []; }
     }));
-    const proposals: TodayProposal[] = items.map((p, i) => ({
-      id: p.id, type: p.siglaTipo, number: p.numero, year: p.ano ?? null,
-      summary: p.ementa, presentedAt: p.dataApresentacao ?? null,
+    // cap: quem protocola "em lote" aparece no máximo MAX_PER_AUTHOR vezes
+    const byAuthor = new Map<string, number>();
+    const keep: number[] = [];
+    items.forEach((p, i) => {
+      const key = authors[i]?.[0]?.deputyId ?? authors[i]?.[0]?.name ?? `sem-autor-${i}`;
+      const n = byAuthor.get(key) ?? 0;
+      byAuthor.set(key, n + 1);
+      if (n < MAX_PER_AUTHOR) keep.push(i);
+    });
+    const finalIdx = keep.slice(0, 12);
+    const proposals: TodayProposal[] = finalIdx.map(i => ({
+      id: items[i].id, type: items[i].siglaTipo, number: items[i].numero, year: items[i].ano ?? null,
+      summary: items[i].ementa, presentedAt: items[i].dataApresentacao ?? null,
       authors: authors[i] ?? [],
-      portalUrl: `https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=${p.id}`,
+      portalUrl: `https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=${items[i].id}`,
     }));
     return { proposals, url };
   })();
