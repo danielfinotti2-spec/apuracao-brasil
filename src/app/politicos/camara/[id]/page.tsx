@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 import Seal from '@/components/Seal';
 import CountUp from '@/components/CountUp';
 import PartyMark from '@/components/PartyMark';
+import Reveal from '@/components/Reveal';
 import SourceList from '@/components/SourceList';
 import { getDeputadoProfile } from '@/services/camara';
 import { formatDate, formatDateTime, formatMoney, MONTHS } from '@/lib/format';
+import { pickLang, t } from '@/i18n/messages';
 
 export const revalidate = 1800;
 
@@ -21,160 +24,187 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function DeputadoPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DeputadoPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string>> }) {
+  const L = pickLang(await searchParams);
+  const q = L === 'pt' ? '' : `?lang=${L}`;
+  const localeTag = L === 'en' ? 'en-US' : L === 'es' ? 'es-ES' : 'pt-BR';
   const { id } = await params;
   const profile = await getDeputadoProfile(id).catch(() => null);
   if (!profile) notFound();
   const p = profile.summary;
-  const maxExpense = profile.expenses.groups[0]?.total || 1;
 
   return (
     <main className="site">
-      <SiteHeader />
+      <SiteHeader active="politicos" lang={L} />
       <div className="site-body">
         <nav className="crumbs profile-crumbs" aria-label="Navegação">
-          <Link href="/">Início</Link><span> / </span><Link href="/politicos">Políticos</Link><span> / </span><span className="on">{p.name}</span>
+          <Link href={`/${q}`}>{t(L, 'profile.backHome')}</Link><span> / </span><Link href={`/politicos${q}`}>{t(L, 'nav.politicians')}</Link><span> / </span><span className="on">{p.name}</span>
         </nav>
 
         <header className="profile-hero a" style={{ ['--ad' as any]: '80ms' }}>
-          <img className="profile-photo" src={p.photoUrl} alt={`Foto oficial de ${p.name}`} referrerPolicy="no-referrer" />
+          <img className="profile-photo" src={p.photoUrl} alt={p.name} referrerPolicy="no-referrer" />
           <div className="profile-id">
             <div className="profile-tags">
               <span className="status-tag on">{p.office}</span>
               <PartyMark party={p.party} size="md" />
               <span className="status-tag">{p.uf}</span>
               {profile.status && <span className="status-tag">{profile.status}</span>}
-              <Seal status="oficial-confirmada" />
+              <Seal status="oficial-confirmada" lang={L} />
             </div>
             <h1>{p.name}</h1>
             <p className="sub">
-              Nome civil: {profile.civilName}
-              {profile.electoralCondition ? ` — condição eleitoral: ${profile.electoralCondition}` : ''}
+              {t(L, 'profile.facts.civil')}: {profile.civilName}
+              {profile.electoralCondition ? ` — ${t(L, 'profile.facts.condition')}: ${profile.electoralCondition}` : ''}
             </p>
             <div className="profile-contacts">
-              {profile.email && <span><b>E-mail:</b> {profile.email}</span>}
-              {profile.officeRoom && <span><b>Gabinete:</b> {profile.officeRoom}{profile.officePhone ? `, tel. ${profile.officePhone}` : ''}</span>}
-              {profile.website && <a href={profile.website} target="_blank" rel="noreferrer">Site oficial</a>}
-              <a href={p.officialUrl} target="_blank" rel="noreferrer">Página na Câmara</a>
+              {profile.email && <span>{profile.email}</span>}
+              {profile.officeRoom && <span>{t(L, 'profile.facts.cabinet')} {profile.officeRoom}{profile.officePhone ? ` · ${profile.officePhone}` : ''}</span>}
+              {profile.website && <a href={profile.website} target="_blank" rel="noreferrer">{t(L, 'profile.website')}</a>}
+              <a href={p.officialUrl} target="_blank" rel="noreferrer">{t(L, 'profile.camaraPage')}</a>
             </div>
           </div>
         </header>
 
-        <section className="profile-kpis a" style={{ ['--ad' as any]: '180ms' }} aria-label="Resumo">
+        <nav className="profile-nav a" style={{ ['--ad' as any]: '150ms' }} aria-label={t(L, 'profile.nav.goto')}>
+          <span>{t(L, 'profile.nav.goto')}:</span>
+          <a href="#identificacao">{t(L, 'profile.overview')}</a>
+          <a href="#despesas">{t(L, 'profile.sec.expenses')}</a>
+          <a href="#proposicoes">{t(L, 'profile.sec.bills')}</a>
+          <a href="#agenda">{t(L, 'profile.sec.agenda')}</a>
+          <a href="#judicial">{t(L, 'profile.judicial.h')}</a>
+          <a href="#fontes">{t(L, 'common.source')}</a>
+        </nav>
+
+        <section className="profile-kpis a" style={{ ['--ad' as any]: '180ms' }} aria-label={t(L, 'profile.any.section')}>
           <div>
-            <span>Proposições de autoria</span>
-            <b><CountUp value={profile.proposals.length} /></b>
-            <small>mais recentes registradas na API</small>
+            <span>{t(L, 'profile.kpi.bills')}</span>
+            <b><CountUp value={profile.proposals.length} locale={localeTag} /></b>
+            <small>{t(L, 'profile.kpi.billsSub')}</small>
           </div>
           <div>
-            <span>Despesas no período carregado</span>
-            <b><CountUp value={profile.expenses.periodTotal} format="money" /></b>
+            <span>{t(L, 'profile.kpi.expenses')}</span>
+            <b><CountUp value={profile.expenses.periodTotal} format="money" locale={localeTag} /></b>
             <small>{profile.expenses.loadedMonths}</small>
           </div>
           <div>
-            <span>Eventos oficiais em 90 dias</span>
-            <b><CountUp value={profile.events.items.length} /></b>
-            <small>participações registradas na agenda</small>
+            <span>{t(L, 'profile.kpi.events')}</span>
+            <b><CountUp value={profile.events.items.length} locale={localeTag} /></b>
+            <small>{t(L, 'profile.kpi.eventsSub')}</small>
           </div>
         </section>
 
         <div className="profile-grid a" style={{ ['--ad' as any]: '280ms' }}>
-          <section className="profile-section" aria-label="Informações institucionais">
-            <h2>Visão geral</h2>
+          <section className="profile-section" id="identificacao" aria-label={t(L, 'profile.sec.id')}>
+            <h2>{t(L, 'profile.overview')}</h2>
             <dl className="facts">
-              <div><dt>Nome civil</dt><dd>{profile.civilName}</dd></div>
-              <div><dt>Partido atual</dt><dd>{p.party}</dd></div>
-              <div><dt>Estado</dt><dd>{p.uf}</dd></div>
-              {profile.birthDate && <div><dt>Nascimento</dt><dd>{formatDate(profile.birthDate)}{profile.birthCity ? ` — ${profile.birthCity}${profile.birthUf ? `/${profile.birthUf}` : ''}` : ''}</dd></div>}
-              {profile.schooling && <div><dt>Escolaridade declarada</dt><dd>{profile.schooling}</dd></div>}
-              {profile.status && <div><dt>Situação do mandato</dt><dd>{profile.status}</dd></div>}
-              {profile.electoralCondition && <div><dt>Condição eleitoral</dt><dd>{profile.electoralCondition}</dd></div>}
+              <div><dt>{t(L, 'profile.facts.civil')}</dt><dd>{profile.civilName}</dd></div>
+              <div><dt>{t(L, 'profile.facts.party')}</dt><dd>{p.party}</dd></div>
+              <div><dt>{t(L, 'profile.facts.uf')}</dt><dd>{p.uf}</dd></div>
+              {profile.birthDate && <div><dt>{t(L, 'profile.facts.birth')}</dt><dd>{formatDate(profile.birthDate)}{profile.birthCity ? ` — ${profile.birthCity}${profile.birthUf ? `/${profile.birthUf}` : ''}` : ''}</dd></div>}
+              {profile.schooling && <div><dt>{t(L, 'profile.facts.school')}</dt><dd>{profile.schooling}</dd></div>}
+              {profile.status && <div><dt>{t(L, 'profile.facts.status')}</dt><dd>{profile.status}</dd></div>}
+              {profile.electoralCondition && <div><dt>{t(L, 'profile.facts.condition')}</dt><dd>{profile.electoralCondition}</dd></div>}
             </dl>
+            <p className="fine">{t(L, 'profile.fine.cadCamara')}</p>
+          </section>
+
+          <section className="profile-section" id="salario" aria-label={t(L, 'profile.salary.h')}>
+            <h2>{t(L, 'profile.salary.h')} <span className="status-tag">{t(L, 'profile.judicial.tag.plan')}</span></h2>
+            <p>{t(L, 'profile.salary.p.camara')}</p>
             <p className="fine">
-              Cadastro institucional da Câmara dos Deputados. Foto e dados pessoais exibidos
-              conforme publicados pela fonte oficial.
+              <a href="https://www.camara.leg.br/transparencia" target="_blank" rel="noreferrer">{t(L, 'profile.salary.link')}</a>
             </p>
           </section>
 
-          <section className="profile-section" aria-label="Despesas da cota parlamentar">
-            <h2>Despesas da cota parlamentar <Seal status="oficial-confirmada" compact /></h2>
-            <p className="sub">Período carregado: {profile.expenses.loadedMonths}. Valores líquidos reembolsados.</p>
-            {profile.expenses.groups.length === 0 && <p className="empty-note">A API não retornou despesas para este período.</p>}
-            {profile.expenses.groups.length > 0 && (
-              <table className="table">
-                <thead>
-                  <tr><th>Tipo de despesa</th><th className="num">Notas</th><th className="num">Total líquido</th></tr>
-                </thead>
-                <tbody>
-                  {profile.expenses.groups.slice(0, 8).map(g => (
-                    <tr key={g.type}>
-                      <td>{g.type}</td>
-                      <td className="num">{g.count}</td>
-                      <td className="num">{formatMoney(g.total)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-            {profile.expenses.recent.length > 0 && (
-              <>
-                <h3 className="inner-title">Últimos lançamentos</h3>
-                <ul className="record-list">
-                  {profile.expenses.recent.slice(0, 10).map((e, i) => (
-                    <li key={i}>
-                      <time>{MONTHS[e.month] ?? e.month}/{e.year}</time>
-                      <div><b>{e.type}</b><small>{e.supplier}{e.supplierDocument ? ` — ${e.supplierDocument}` : ''}</small></div>
-                      <b>{formatMoney(e.netValue)}</b>
-                      {e.documentUrl && <a href={e.documentUrl} target="_blank" rel="noreferrer" aria-label="Abrir documento fiscal">documento</a>}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </section>
+          <Reveal>
+            <section className="profile-section" id="despesas" aria-label={t(L, 'profile.sec.expenses')}>
+              <h2>{t(L, 'profile.sec.expenses')} <Seal status="oficial-confirmada" compact lang={L} /></h2>
+              <p className="sub">{t(L, 'profile.expenses.period')}: {profile.expenses.loadedMonths}. {t(L, 'profile.expenses.net')}</p>
+              {profile.expenses.groups.length === 0 && <p className="empty-note">{t(L, 'profile.expenses.empty')}</p>}
+              {profile.expenses.groups.length > 0 && (
+                <table className="table">
+                  <thead>
+                    <tr><th>{t(L, 'profile.expenses.group')}</th><th className="num">{t(L, 'profile.expenses.notes')}</th><th className="num">{t(L, 'profile.expenses.total')}</th></tr>
+                  </thead>
+                  <tbody>
+                    {profile.expenses.groups.slice(0, 8).map(g => (
+                      <tr key={g.type}>
+                        <td>{g.type}</td>
+                        <td className="num">{g.count}</td>
+                        <td className="num">{formatMoney(g.total)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {profile.expenses.recent.length > 0 && (
+                <>
+                  <h3 className="inner-title">{t(L, 'profile.expenses.last')}</h3>
+                  <ul className="record-list">
+                    {profile.expenses.recent.slice(0, 10).map((e, i) => (
+                      <li key={i}>
+                        <time>{MONTHS[e.month] ?? e.month}/{e.year}</time>
+                        <div><b>{e.type}</b><small>{e.supplier}{e.supplierDocument ? ` — ${e.supplierDocument}` : ''}</small></div>
+                        <b>{formatMoney(e.netValue)}</b>
+                        {e.documentUrl && <a href={e.documentUrl} target="_blank" rel="noreferrer" aria-label={t(L, 'profile.doc')}>{t(L, 'profile.doc')}</a>}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </section>
+          </Reveal>
 
-          <section className="profile-section" aria-label="Proposições de autoria">
-            <h2>Proposições de autoria <Seal status="oficial-confirmada" compact /></h2>
-            <p className="sub">Matérias mais recentes com autoria registrada na API da Câmara.</p>
-            {profile.proposals.length === 0 && <p className="empty-note">Nenhuma proposição de autoria retornada pela API para este deputado.</p>}
-            <ul className="record-list">
-              {profile.proposals.map(pr => (
-                <li key={pr.id}>
-                  <span className="prop-id">{pr.type} {pr.number}{pr.year ? `/${pr.year}` : ''}</span>
-                  <div><b>{pr.summary}</b>{pr.presentedAt && <small>apresentada em {formatDate(pr.presentedAt)}</small>}</div>
-                  <a href={pr.portalUrl} target="_blank" rel="noreferrer">tramitação</a>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <Reveal delay={60}>
+            <section className="profile-section" id="proposicoes" aria-label={t(L, 'profile.sec.bills')}>
+              <h2>{t(L, 'profile.sec.bills')} <Seal status="oficial-confirmada" compact lang={L} /></h2>
+              <p className="sub">{t(L, 'profile.bills.sub')}</p>
+              {profile.proposals.length === 0 && <p className="empty-note">{t(L, 'profile.bills.empty')}</p>}
+              <ul className="record-list">
+                {profile.proposals.map(pr => (
+                  <li key={pr.id}>
+                    <span className="prop-id">{pr.type} {pr.number}{pr.year ? `/${pr.year}` : ''}</span>
+                    <div><b>{pr.summary}</b>{pr.presentedAt && <small>{t(L, 'profile.presentedAt')} {formatDate(pr.presentedAt)}</small>}</div>
+                    <a href={pr.portalUrl} target="_blank" rel="noreferrer">{t(L, 'profile.tramit')}</a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </Reveal>
 
-          <section className="profile-section" aria-label="Agenda oficial recente">
-            <h2>Agenda oficial <Seal status="oficial-confirmada" compact /></h2>
-            <p className="sub">
-              Participações em eventos oficiais entre {formatDate(profile.events.periodStart)} e {formatDate(profile.events.periodEnd)}.
-              Se a lista estiver vazia, isso significa apenas que nenhuma participação foi registrada
-              nesta fonte no período — não que o deputado não tenha trabalhado.
-            </p>
-            {profile.events.items.length === 0 && <p className="empty-note">A API não retornou eventos neste período para este deputado.</p>}
-            <ul className="record-list">
-              {profile.events.items.slice(0, 12).map(ev => (
-                <li key={ev.id}>
-                  <time>{formatDateTime(ev.startsAt)}</time>
-                  <div><b>{ev.type}</b><small>{ev.title}{ev.location ? ` — ${ev.location}` : ''}{ev.situation ? ` (${ev.situation})` : ''}</small></div>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <Reveal delay={120}>
+            <section className="profile-section" id="agenda" aria-label={t(L, 'profile.sec.agenda')}>
+              <h2>{t(L, 'profile.sec.agenda')} <Seal status="oficial-confirmada" compact lang={L} /></h2>
+              <p className="sub">
+                {formatDate(profile.events.periodStart)} — {formatDate(profile.events.periodEnd)}. {t(L, 'profile.agenda.note')}
+              </p>
+              {profile.events.items.length === 0 && <p className="empty-note">{t(L, 'profile.agenda.empty')}</p>}
+              <ul className="record-list">
+                {profile.events.items.slice(0, 12).map(ev => (
+                  <li key={ev.id}>
+                    <time>{formatDateTime(ev.startsAt)}</time>
+                    <div><b>{ev.type}</b><small>{ev.title}{ev.location ? ` — ${ev.location}` : ''}{ev.situation ? ` (${ev.situation})` : ''}</small></div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </Reveal>
+
+          <Reveal delay={160}>
+            <section className="profile-section" id="judicial" aria-label={t(L, 'profile.judicial.h')}>
+              <h2>{t(L, 'profile.judicial.h')} <span className="status-tag">{t(L, 'profile.judicial.tag.plan')}</span></h2>
+              <p>{t(L, 'profile.judicial.p')}</p>
+            </section>
+          </Reveal>
         </div>
 
-        <p className="pending-note">
-          Ainda não implementado neste perfil: notícias relacionadas, voto nominal em cada votação da Câmara,
-          viagens oficiais, histórico partidário completo e informações judiciais. Esses módulos entram nas
-          próximas fases — consulte o planejamento na <Link href="/metodologia">metodologia</Link>.
-        </p>
+        <p className="pending-note">{t(L, 'profile.pending')}</p>
 
-        <SourceList sources={profile.sources} failed={profile.failedSources} />
+        <div id="fontes">
+          <SourceList lang={L} sources={profile.sources} failed={profile.failedSources} />
+        </div>
       </div>
+      <SiteFooter lang={L} />
     </main>
   );
 }

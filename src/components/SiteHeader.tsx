@@ -1,22 +1,26 @@
 import Link from 'next/link';
 import ThemeToggle from './ThemeToggle';
+import LangSwitcher from './LangSwitcher';
+import { t, type Locale } from '@/i18n/messages';
 
-export default function SiteHeader({ active }: { active?: 'home' | 'politicos' | 'hoje' | 'metodologia' }) {
+export default function SiteHeader({ active, lang = 'pt' }: { active?: string; lang?: Locale }) {
+  const q = lang === 'pt' ? '' : `?lang=${lang}`;
   return (
     <>
       <div className="flag-stripe" aria-hidden="true" />
       <header className="site-header">
-        <Link href="/" className="wordmark" aria-label="Fiscaliza Brasil, início">
+        <Link href={`/${q}`} className="wordmark" aria-label="Fiscaliza Brasil">
           <span className="brand-mark"><i /><i /><i /></span>
           <span className="brand-text">Fiscaliza<b>Brasil</b></span>
         </Link>
-        <nav className="site-nav" aria-label="Navegação principal">
-          <Link href="/" className={active === 'home' ? 'active' : ''}>Início</Link>
-          <Link href="/politicos" className={active === 'politicos' ? 'active' : ''}>Políticos</Link>
-          <Link href="/hoje" className={active === 'hoje' ? 'active' : ''}>O dia de hoje</Link>
-          <Link href="/metodologia" className={active === 'metodologia' ? 'active' : ''}>Metodologia</Link>
+        <nav className="site-nav" aria-label={t(lang, 'nav.main')}>
+          <Link href={`/${q}`} className={active === 'home' ? 'active' : ''}>{t(lang, 'nav.home')}</Link>
+          <Link href={`/politicos${q}`} className={active === 'politicos' ? 'active' : ''}>{t(lang, 'nav.politicians')}</Link>
+          <Link href={`/hoje${q}`} className={active === 'hoje' ? 'active' : ''}>{t(lang, 'nav.today')}</Link>
+          <Link href={`/metodologia${q}`} className={active === 'metodologia' ? 'active' : ''}>{t(lang, 'nav.methodology')}</Link>
         </nav>
-        <ThemeToggle />
+        <LangSwitcher lang={lang} />
+        <ThemeToggle lang={lang} />
       </header>
     </>
   );

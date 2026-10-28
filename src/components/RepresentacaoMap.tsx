@@ -16,7 +16,9 @@ function rampFor(count: number, max: number) {
   return RAMP[Math.min(RAMP.length - 1, Math.floor(t * RAMP.length))];
 }
 
-export default function RepresentacaoMap({ geo, counts }: { geo: any; counts: Record<string, number> }) {
+type TipLabels = { watchedSing: string; watchedPlur: string; loading: string };
+
+export default function RepresentacaoMap({ geo, counts, labels, onHoverUf }: { geo: any; counts: Record<string, number>; labels: TipLabels; onHoverUf?: (uf: string | null) => void }) {
   const router = useRouter();
   const max = Math.max(0, ...Object.values(counts));
 
@@ -32,18 +34,18 @@ export default function RepresentacaoMap({ geo, counts }: { geo: any; counts: Re
     const nome = feature?.properties?.nome ?? sigla;
     const total = counts[sigla] ?? 0;
     layer.bindTooltip(
-      `<b>${nome}</b><br/>${total} parlamentar${total === 1 ? '' : 'es'} monitorado${total === 1 ? '' : 's'}`,
+      `<b>${nome}</b><br/>${total} ${total === 1 ? labels.watchedSing : labels.watchedPlur}`,
       { sticky: true, direction: 'top', className: 'rep-tip' },
     );
     layer.on({
-      mouseover: () => layer.setStyle({ weight: 2.2, fillOpacity: 1, color: '#146c43' }),
-      mouseout: () => layer.setStyle(styleFor(feature)),
+      mouseover: () => { layer.setStyle({ weight: 2.2, fillOpacity: 1, color: '#146c43' }); onHoverUf?.(sigla); },
+      mouseout: () => { layer.setStyle(styleFor(feature)); onHoverUf?.(null); },
       click: () => router.push(`/politicos?uf=${sigla}`),
     });
   };
 
   if (!geo) {
-    return <div className="rep-map-loading" role="status">Carregando malha oficial do IBGE…</div>;
+    return <div className="rep-map-loading" role="status">{labels.loading}</div>;
   }
 
   return (

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 /** Sobe o número até o valor real quando o dado chega. Respeita reduced-motion (mostra o valor direto). */
-export default function CountUp({ value, format = 'int' }: { value: number | null | undefined; format?: 'int' | 'money' }) {
+export default function CountUp({ value, format = 'int', locale = 'pt-BR' }: { value: number | null | undefined; format?: 'int' | 'money'; locale?: string }) {
   const [shown, setShown] = useState(0);
   const from = useRef(0);
 
@@ -29,5 +29,5 @@ export default function CountUp({ value, format = 'int' }: { value: number | nul
   }, [value]);
 
   if (value == null) return <>—</>;
-  return <>{format === 'money' ? shown.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : Math.round(shown).toLocaleString('pt-BR')}</>;
+  return <>{format === 'money' ? shown.toLocaleString(locale, { style: 'currency', currency: 'BRL' }) : Math.round(shown).toLocaleString(locale)}</>;
 }

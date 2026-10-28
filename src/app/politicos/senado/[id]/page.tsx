@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 import Seal from '@/components/Seal';
 import CountUp from '@/components/CountUp';
 import PartyMark from '@/components/PartyMark';
+import Reveal from '@/components/Reveal';
 import SourceList from '@/components/SourceList';
 import { getSenadorProfile } from '@/services/senado';
 import { formatDate } from '@/lib/format';
+import { pickLang, t } from '@/i18n/messages';
 
 export const revalidate = 1800;
 
@@ -29,7 +32,10 @@ const voteClass = (vote: string) => {
   return 'vote-other';
 };
 
-export default async function SenadorPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SenadorPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string>> }) {
+  const L = pickLang(await searchParams);
+  const q = L === 'pt' ? '' : `?lang=${L}`;
+  const localeTag = L === 'en' ? 'en-US' : L === 'es' ? 'es-ES' : 'pt-BR';
   const { id } = await params;
   const profile = await getSenadorProfile(id).catch(() => null);
   if (!profile) notFound();
@@ -39,105 +45,125 @@ export default async function SenadorPage({ params }: { params: Promise<{ id: st
 
   return (
     <main className="site">
-      <SiteHeader />
+      <SiteHeader active="politicos" lang={L} />
       <div className="site-body">
         <nav className="crumbs profile-crumbs" aria-label="Navegação">
-          <Link href="/">Início</Link><span> / </span><Link href="/politicos">Políticos</Link><span> / </span><span className="on">{p.name}</span>
+          <Link href={`/${q}`}>{t(L, 'profile.backHome')}</Link><span> / </span><Link href={`/politicos${q}`}>{t(L, 'nav.politicians')}</Link><span> / </span><span className="on">{p.name}</span>
         </nav>
 
         <header className="profile-hero a" style={{ ['--ad' as any]: '80ms' }}>
-          <img className="profile-photo" src={p.photoUrl} alt={`Foto oficial de ${p.name}`} referrerPolicy="no-referrer" />
+          <img className="profile-photo" src={p.photoUrl} alt={p.name} referrerPolicy="no-referrer" />
           <div className="profile-id">
             <div className="profile-tags">
               <span className="status-tag on">{p.office}</span>
               <PartyMark party={p.party} size="md" />
               <span className="status-tag">{p.uf}</span>
-              <Seal status="oficial-confirmada" />
+              <Seal status="oficial-confirmada" lang={L} />
             </div>
             <h1>{p.name}</h1>
-            <p className="sub">Nome completo: {profile.fullName}</p>
+            <p className="sub">{t(L, 'profile.facts.civil')}: {profile.fullName}</p>
             <div className="profile-contacts">
-              {profile.email && <span><b>E-mail:</b> {profile.email}</span>}
-              {profile.officeAddress && <span><b>Endereço parlamentar:</b> {profile.officeAddress}</span>}
-              {p.officialUrl && <a href={p.officialUrl} target="_blank" rel="noreferrer">Página no Senado</a>}
+              {profile.email && <span>{profile.email}</span>}
+              {profile.officeAddress && <span>{profile.officeAddress}</span>}
+              {p.officialUrl && <a href={p.officialUrl} target="_blank" rel="noreferrer">{t(L, 'profile.senadoPage')}</a>}
             </div>
           </div>
         </header>
 
-        <section className="profile-kpis a" style={{ ['--ad' as any]: '180ms' }} aria-label="Resumo de votações">
+        <nav className="profile-nav a" style={{ ['--ad' as any]: '150ms' }} aria-label={t(L, 'profile.nav.goto')}>
+          <span>{t(L, 'profile.nav.goto')}:</span>
+          <a href="#identificacao">{t(L, 'profile.overview')}</a>
+          <a href="#votacoes">{t(L, 'profile.sec.votes')}</a>
+          <a href="#salario">{t(L, 'profile.salary.h')}</a>
+          <a href="#judicial">{t(L, 'profile.judicial.h')}</a>
+          <a href="#fontes">{t(L, 'common.source')}</a>
+        </nav>
+
+        <section className="profile-kpis a" style={{ ['--ad' as any]: '180ms' }} aria-label={t(L, 'profile.any.section')}>
           <div>
-            <span>Votações nominais registradas</span>
-            <b><CountUp value={profile.votes.length} /></b>
-            <small>histórico publicado pelo serviço do Senado</small>
+            <span>{t(L, 'profile.votes.kpi')}</span>
+            <b><CountUp value={profile.votes.length} locale={localeTag} /></b>
+            <small>{t(L, 'profile.votes.kpiSub')}</small>
           </div>
           <div>
-            <span>Votos “Sim”</span>
-            <b><CountUp value={yes} /></b>
-            <small>neste histórico</small>
+            <span>{t(L, 'profile.votes.yes')}</span>
+            <b><CountUp value={yes} locale={localeTag} /></b>
+            <small>{t(L, 'profile.votes.thisHist')}</small>
           </div>
           <div>
-            <span>Votos “Não”</span>
-            <b><CountUp value={no} /></b>
-            <small>neste histórico</small>
+            <span>{t(L, 'profile.votes.no')}</span>
+            <b><CountUp value={no} locale={localeTag} /></b>
+            <small>{t(L, 'profile.votes.thisHist')}</small>
           </div>
         </section>
 
         <div className="profile-grid a" style={{ ['--ad' as any]: '280ms' }}>
-          <section className="profile-section" aria-label="Informações institucionais">
-            <h2>Visão geral</h2>
+          <section className="profile-section" id="identificacao" aria-label={t(L, 'profile.sec.id')}>
+            <h2>{t(L, 'profile.overview')}</h2>
             <dl className="facts">
-              <div><dt>Nome completo</dt><dd>{profile.fullName}</dd></div>
-              <div><dt>Partido atual</dt><dd>{p.party}</dd></div>
-              <div><dt>Estado</dt><dd>{p.uf}</dd></div>
-              {profile.birthDate && <div><dt>Nascimento</dt><dd>{formatDate(profile.birthDate)}{profile.birthCity ? ` — ${profile.birthCity}${profile.birthUf ? `/${profile.birthUf}` : ''}` : ''}</dd></div>}
-              {profile.gender && <div><dt>Sexo declarado</dt><dd>{profile.gender}</dd></div>}
-              {profile.officeAddress && <div><dt>Endereço parlamentar</dt><dd>{profile.officeAddress}</dd></div>}
+              <div><dt>{t(L, 'profile.facts.civil')}</dt><dd>{profile.fullName}</dd></div>
+              <div><dt>{t(L, 'profile.facts.party')}</dt><dd>{p.party}</dd></div>
+              <div><dt>{t(L, 'profile.facts.uf')}</dt><dd>{p.uf}</dd></div>
+              {profile.birthDate && <div><dt>{t(L, 'profile.facts.birth')}</dt><dd>{formatDate(profile.birthDate)}{profile.birthCity ? ` — ${profile.birthCity}${profile.birthUf ? `/${profile.birthUf}` : ''}` : ''}</dd></div>}
+              {profile.gender && <div><dt>{t(L, 'profile.facts.status')}</dt><dd>{profile.gender}</dd></div>}
+              {profile.officeAddress && <div><dt>{t(L, 'profile.facts.cabinet')}</dt><dd>{profile.officeAddress}</dd></div>}
             </dl>
+            <p className="fine">{t(L, 'profile.fine.cadSenado')}</p>
+          </section>
+
+          <section className="profile-section" id="salario" aria-label={t(L, 'profile.salary.h')}>
+            <h2>{t(L, 'profile.salary.h')} <span className="status-tag">{t(L, 'profile.judicial.tag.plan')}</span></h2>
+            <p>{t(L, 'profile.salary.p.senado')}</p>
             <p className="fine">
-              Cadastro institucional do Senado Federal, conforme publicado pela fonte oficial.
+              <a href="https://www.senado.leg.br/transparencia" target="_blank" rel="noreferrer">{t(L, 'profile.salary.link')}</a>
             </p>
           </section>
 
-          <section className="profile-section votes-section" aria-label="Votações nominais">
-            <h2>Votações nominais <Seal status="oficial-confirmada" compact /></h2>
-            <p className="sub">
-              Registro nominal publicado pelo Senado para cada votação de Plenário. O voto exibido
-              é o voto oficial do parlamentar naquela votação — não é uma interpretação do portal.
-            </p>
-            {profile.votesNote && <p className="sync-warning" role="note"><b>Aviso da fonte:</b> {profile.votesNote}</p>}
-            {profile.votes.length === 0 && <p className="empty-note">O serviço do Senado não retornou votações para este senador.</p>}
-            <table className="table votes-table">
-              <thead>
-                <tr><th>Data</th><th>Matéria e votação</th><th className="num">Voto</th></tr>
-              </thead>
-              <tbody>
-                {profile.votes.slice(0, 30).map((v, i) => (
-                  <tr key={`${v.matterCode}-${v.date}-${i}`}>
-                    <td className="num">{formatDate(v.date)}</td>
-                    <td>
-                      <b>{v.matter || v.description || 'Votação nominal'}</b>
-                      <small style={{ display: 'block', marginTop: 2 }}>
-                        {v.description}
-                        {v.result ? ` — resultado: ${v.result}` : ''}
-                        {v.secret ? ' — votação secreta' : ''}
-                      </small>
-                    </td>
-                    <td className="num"><span className={`vote ${voteClass(v.vote)}`}>{v.vote || '—'}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+          <Reveal>
+            <section className="profile-section votes-section" id="votacoes" aria-label={t(L, 'profile.sec.votes')}>
+              <h2>{t(L, 'profile.sec.votes')} <Seal status="oficial-confirmada" compact lang={L} /></h2>
+              <p className="sub">{t(L, 'profile.votes.sub')}</p>
+              {profile.votesNote && <p className="sync-warning" role="note"><b>{t(L, 'common.source')}:</b> {t(L, 'profile.votes.noteDeprec')}</p>}
+              {profile.votes.length === 0 && <p className="empty-note">{t(L, 'profile.votes.empty')}</p>}
+              <table className="table votes-table">
+                <thead>
+                  <tr><th>{L === 'en' ? 'Date' : L === 'es' ? 'Fecha' : 'Data'}</th><th>{L === 'en' ? 'Matter and vote' : L === 'es' ? 'Materia y votación' : 'Matéria e votação'}</th><th className="num">{L === 'en' ? 'Vote' : 'Voto'}</th></tr>
+                </thead>
+                <tbody>
+                  {profile.votes.slice(0, 30).map((v, i) => (
+                    <tr key={`${v.matterCode}-${v.date}-${i}`}>
+                      <td className="num">{formatDate(v.date)}</td>
+                      <td>
+                        <b>{v.matter || v.description || 'Votação nominal'}</b>
+                        <small style={{ display: 'block', marginTop: 2 }}>
+                          {v.description}
+                          {v.result ? ` — resultado: ${v.result}` : ''}
+                          {v.secret ? ' — votação secreta' : ''}
+                        </small>
+                      </td>
+                      <td className="num"><span className={`vote ${voteClass(v.vote)}`}>{v.vote || '—'}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          </Reveal>
+
+          <Reveal delay={120}>
+            <section className="profile-section" id="judicial" aria-label={t(L, 'profile.judicial.h')}>
+              <h2>{t(L, 'profile.judicial.h')} <span className="status-tag">{t(L, 'profile.judicial.tag.plan')}</span></h2>
+              <p>{t(L, 'profile.judicial.p')}</p>
+            </section>
+          </Reveal>
         </div>
 
-        <p className="pending-note">
-          Ainda não implementado neste perfil: matérias de autoria, presenças detalhadas, despesas da cota,
-          viagens oficiais, notícias e informações judiciais. Esses módulos entram nas próximas fases —
-          consulte o planejamento na <Link href="/metodologia">metodologia</Link>.
-        </p>
+        <p className="pending-note">{t(L, 'profile.pending')}</p>
 
-        <SourceList sources={profile.sources} failed={profile.failedSources} />
+        <div id="fontes">
+          <SourceList lang={L} sources={profile.sources} failed={profile.failedSources} />
+        </div>
       </div>
+      <SiteFooter lang={L} />
     </main>
   );
 }

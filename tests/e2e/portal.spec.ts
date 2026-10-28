@@ -85,6 +85,32 @@ test('hoje: exibe o registro do dia com as fontes', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Fontes utilizadas nesta página' })).toBeVisible();
 });
 
+test('termos: exibe limites de responsabilidade e presunção de inocência', async ({ page }) => {
+  await page.goto('/termos');
+  await expect(page.getByRole('heading', { name: /Termos de uso/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Presunção de inocência' })).toBeVisible();
+  await expect(page.getByText(/Limitação de responsabilidade/)).toBeVisible();
+});
+
+test('termos: traduz para espanhol e inglês', async ({ page }) => {
+  await page.goto('/termos?lang=es');
+  await expect(page.getByRole('heading', { name: /Términos de uso/ })).toBeVisible();
+  await page.goto('/termos?lang=en');
+  await expect(page.getByRole('heading', { name: /Terms of use/ })).toBeVisible();
+});
+
+test('apoiar: lista formas reais de ajuda e aviso de doações', async ({ page }) => {
+  await page.goto('/apoiar');
+  await expect(page.getByRole('heading', { name: 'Apoie este projeto' })).toBeVisible();
+  await expect(page.getByText('Sobre doações em dinheiro')).toBeVisible();
+});
+
+test('melhorias: sem banco configurado mostra fallback honesto', async ({ page }) => {
+  await page.goto('/melhorias');
+  await expect(page.getByRole('heading', { name: 'Melhorias e comentários' })).toBeVisible();
+  await expect(page.getByText(/Postgres/)).toBeVisible();
+});
+
 test('metodologia: exibe os quatro selos e as regras', async ({ page }) => {
   await page.goto('/metodologia');
   await expect(page.getByRole('heading', { name: 'Metodologia de verificação' })).toBeVisible();

@@ -19,7 +19,11 @@ de apuração eleitoral em tempo real foi descontinuado nesta fase.
 | O dia de hoje `/hoje` | "O que seu eleito fez hoje": proposições apresentadas na data, votações nominais, agenda oficial e presenças registradas nos eventos, com destaque do dia e confronto de presenças | API Dados Abertos da Câmara |
 | Mapa da representação (home) | Estados coloridos pelo número de parlamentares monitorados; clique filtra o diretório | diretório do portal + malhas do IBGE |
 | `/metodologia` | Os quatro selos de verificação, regras editoriais e fluxo de coleta | — |
+| `/termos` | Termos de uso, neutralidade, presunção de inocência, LGPD e limites de responsabilidade | — |
+| `/apoiar` | Formas de apoiar o projeto (compartilhar, reportar erros, contribuir com código, patrocínio) | — |
+| `/melhorias` | Quadro público de melhorias e erros, com formulário | Postgres (Vercel) com fallback honesto quando não configurado |
 | Tema claro/escuro | Botão no cabeçalho; preferência persistida no navegador | — |
+| Idiomas | Português (padrão), English e Español via `?lang=` em todas as páginas | — |
 
 Todo perfil e a página do dia terminam com **Fontes utilizadas nesta página**: as URLs
 exatas consultadas, o horário de cada coleta e, quando ocorre, a lista de consultas que
@@ -71,6 +75,18 @@ determinística, sem depender da disponibilidade das fontes externas.
 
 Cache do servidor: diretório 1 h, perfis 30 min, quadro do dia 15 min. A última
 sincronização é exibida na página inicial, no diretório e na página do dia.
+
+## Deploy na Vercel
+
+O projeto roda na Vercel sem configuração extra (Next.js detectado, região `gru1` em
+[`vercel.json`](vercel.json)). Dois caminhos:
+
+1. **Pelo painel**: vercel.com → *Add New → Project* → importar `danielfinotti2-spec/apuracao-brasil` → Deploy.
+2. **Pela CLI**: `npx vercel --prod` (pede login na conta da Vercel).
+
+Banco do quadro de melhorias: no painel da Vercel, **Storage → Postgres → Create** e
+*Connect to Project*. Isso injeta `POSTGRES_URL` automaticamente; a tabela
+`improvements` é criada pelo próprio código no primeiro uso.
 
 ## Planejado e ainda não implementado
 

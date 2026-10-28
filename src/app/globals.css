@@ -574,3 +574,79 @@ html[data-theme="dark"] .vote{color:#fff}
 html[data-theme="dark"] .destaque:after{background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.08) 50%,transparent 75%)}
 html[data-theme="dark"] .map-canvas .leaflet-container{background:transparent}
 html[data-theme="dark"] .state-bar{background:#262b24}
+
+/* ================================================================
+   REVEAL + novos componentes (idioma, apoio, melhorias, perfil nav,
+   fotos no mapa) e reforço tipográfico editorial
+   ================================================================ */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s cubic-bezier(.22,.68,.24,1) var(--rd,0ms),transform .7s cubic-bezier(.22,.68,.24,1) var(--rd,0ms)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* seletor de idioma no cabeçalho */
+.lang-switch{display:inline-flex;border:1px solid var(--lineS);border-radius:2px;overflow:hidden;flex:none}
+.lang-switch a{padding:7px 8px;font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--mutedP);text-decoration:none;line-height:1}
+.lang-switch a.on{background:var(--inkP);color:var(--paper)}
+.lang-switch a + a{border-left:1px solid var(--lineP)}
+.lang-switch a:hover:not(.on){color:var(--inkP)}
+
+/* rodapé com links */
+.foot-links{display:inline-flex;gap:16px}
+.foot-links a{color:var(--mutedP);text-decoration:none;font-size:12px;font-weight:600}
+.foot-links a:hover{color:var(--accent)}
+
+/* perfil: navegação por âncoras */
+.profile-nav{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;background:var(--paper);border-block:1px solid var(--lineP);padding:8px 2px;margin:18px 0 0;font-size:12.5px}
+.profile-nav span{color:var(--faintP);font-size:11.5px;font-weight:600}
+.profile-nav a{color:var(--mutedP);text-decoration:none;font-weight:600;padding:4px 2px;border-bottom:2px solid transparent;transition:color .18s,border-color .18s}
+.profile-nav a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* título editorial mais forte (anti-genérico) */
+.masthead h1{font-size:clamp(34px,5.2vw,58px);line-height:.98;letter-spacing:-2px}
+.module-row h2{font-size:17px}
+.module-row h2:before{content:counter(mod,decimal-leading-zero);counter-increment:mod;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--faintP);margin-right:14px;font-weight:500}
+.module-list{counter-reset:mod}
+.page-head h1{font-size:clamp(30px,4.4vw,46px);letter-spacing:-1.6px}
+
+/* apoiar */
+.ways-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--lineP);border:1px solid var(--lineP);margin:22px 0}
+.way-card{background:var(--surface);padding:20px 22px;position:relative}
+.way-num{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--faintP);letter-spacing:1px;margin-bottom:8px}
+.way-card h2{font-size:16px;font-weight:700;margin:0 0 6px}
+.way-card p{font-size:13px;line-height:1.6;color:var(--mutedP);margin:0}
+.apoiar-actions{display:flex;align-items:center;gap:20px;padding-top:16px}
+@media(max-width:700px){.ways-grid{grid-template-columns:1fr}}
+
+/* melhorias */
+.feedback-grid{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:26px;margin:22px 0;align-items:start}
+.feedback-form{background:var(--surface);border:1px solid var(--lineP);padding:20px;display:flex;flex-direction:column;gap:12px}
+.feedback-form h2,.feedback-list h2{font-size:15px;font-weight:700;margin:0}
+.feedback-form input:not(.hp),.feedback-form textarea{border:1px solid var(--lineP);background:var(--paper);border-radius:2px;padding:10px 12px;font:inherit;font-size:13.5px;color:var(--inkP);outline:none;width:100%;box-sizing:border-box}
+.feedback-form input:not(.hp):focus,.feedback-form textarea:focus{border-color:var(--accent)}
+.feedback-form textarea{resize:vertical}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.ok-note{font-size:13px;color:var(--accent);font-weight:600;margin:0}
+.feedback-list ul{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:1px;background:var(--lineP);border:1px solid var(--lineP)}
+.fb-item{background:var(--surface);padding:13px 16px}
+.fb-head{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--faintP);margin-bottom:5px}
+.fb-head b{color:var(--inkP);font-size:12.5px}
+.fb-head time{margin-left:auto;font-variant-numeric:tabular-nums}
+.fb-kind{border-radius:2px;padding:2px 8px;font-size:10.5px;font-weight:700;letter-spacing:.3px}
+.fb-kind.melhoria{background:#ecf4ee;color:var(--accent);border:1px solid #bcd8c6}
+.fb-kind.erro{background:#f7eeee;color:#a32020;border:1px solid #e3c0c0}
+.fb-item p{margin:0;font-size:13.5px;line-height:1.6}
+.fb-item.melhoria{border-left:2px solid var(--accent)}
+.fb-item.erro{border-left:2px solid var(--danger)}
+html[data-theme="dark"] .fb-kind.melhoria{background:#1a2b21;border-color:#2f5a43;color:#7fcfa6}
+html[data-theme="dark"] .fb-kind.erro{background:#2b1a1a;border-color:#5a2b2b;color:#e06c6c}
+@media(max-width:900px){.feedback-grid{grid-template-columns:1fr}}
+
+/* fotos no mapa */
+.map-faces{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 10px}
+.map-face{display:block;aspect-ratio:3/4;border-radius:2px;overflow:hidden;background:var(--lineP);position:relative;animation:rise .4s cubic-bezier(.22,.68,.24,1) both}
+.map-face img{width:100%;height:100%;object-fit:cover;object-position:center 16%;display:block;transition:transform .3s cubic-bezier(.22,.68,.24,1)}
+.map-face:hover img{transform:scale(1.08)}
+.map-face.ph{display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--faintP);text-decoration:none}
+.map-face:nth-child(2){animation-delay:40ms}.map-face:nth-child(3){animation-delay:80ms}.map-face:nth-child(4){animation-delay:120ms}
+.map-face:nth-child(5){animation-delay:160ms}.map-face:nth-child(6){animation-delay:200ms}.map-face:nth-child(7){animation-delay:240ms}.map-face:nth-child(8){animation-delay:280ms}
+html[data-theme="dark"] .map-face.ph{background:#222720}

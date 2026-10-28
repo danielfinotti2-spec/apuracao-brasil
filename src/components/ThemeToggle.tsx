@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { t, type Locale } from '@/i18n/messages';
 
 /** Alterna tema claro/escuro do portal. Persiste em localStorage e respeita o sistema. */
-export default function ThemeToggle() {
+export default function ThemeToggle({ lang = 'pt' }: { lang?: Locale }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
@@ -18,8 +19,10 @@ export default function ThemeToggle() {
     try { localStorage.setItem('fb-theme', next); } catch { /* modo privado */ }
   };
 
+  const label = t(lang, theme === 'dark' ? 'theme.light' : 'theme.dark');
+
   return (
-    <button className="theme-toggle" onClick={toggle} aria-label={theme === 'dark' ? 'Clarear a tela' : 'Escurecer a tela'} title={theme === 'dark' ? 'Clarear a tela' : 'Escurecer a tela'}>
+    <button className="theme-toggle" onClick={toggle} aria-label={label} title={label}>
       {theme === 'dark' ? (
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
           <circle cx="12" cy="12" r="4.6" />
