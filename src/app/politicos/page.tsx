@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import PoliticosClient from '@/components/PoliticosClient';
@@ -11,6 +12,7 @@ export const metadata = {
 
 export default async function PoliticosPage({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const L = pickLang(await searchParams);
+  const q = L === 'pt' ? '' : `?lang=${L}`;
   return (
     <main className="site">
       <SiteHeader active="politicos" lang={L} />
@@ -21,6 +23,14 @@ export default async function PoliticosPage({ searchParams }: { searchParams: Pr
           <a href="https://www.gov.br/planalto/pt-br" target="_blank" rel="noreferrer">Palácio do Planalto ↗</a>
           <span className="fine">{t(L, 'exec.limit')}</span>
         </div>
+        <Link href={`/politicos/executivo/presidencia${q}`} className="pres-card a" style={{ ['--ad' as any]: '70ms' }}>
+          <span className="profile-photo mono" aria-hidden="true"><span>PR</span></span>
+          <span>
+            <b>Luiz Inácio Lula da Silva — {t(L, 'pres.h')}</b>
+            <small>{t(L, 'pres.card')}</small>
+          </span>
+          <span className="go">→</span>
+        </Link>
         <Suspense fallback={<div className="map-loading"><span className="spinner" />…</div>}>
           <PoliticosClient
             L={L}

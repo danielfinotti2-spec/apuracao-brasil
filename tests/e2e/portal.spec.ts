@@ -110,6 +110,22 @@ test('apoiar: lista formas reais de ajuda e QR de Pix', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Doação direta via Pix' })).toBeVisible();
   await expect(page.locator('.pix-qr img')).toHaveAttribute('src', '/pix-qr.png');
   await expect(page.getByText('6a23c1f5-b246-457d-970c-c41b8a0220e0')).toBeVisible();
+  await page.getByRole('button', { name: 'Copiar chave Pix' }).click();
+  await expect(page.getByRole('button', { name: 'Copiado!' })).toBeVisible();
+});
+
+test('executivo: perfil do Presidente com agenda e subsídio oficiais', async ({ page }) => {
+  await page.goto('/politicos/executivo/presidencia');
+  await expect(page.getByRole('heading', { name: /Luiz Inácio Lula da Silva/ })).toBeVisible();
+  await expect(page.getByText('Geraldo Alckmin (PSB)')).toBeVisible();
+  await expect(page.getByRole('link', { name: /agenda de compromissos oficial/ })).toHaveAttribute('href', 'https://www.gov.br/planalto/pt-br/acesso-a-informacao/agenda-compromissos');
+});
+
+test('executivo: diretório destaca o card do Presidente', async ({ page }) => {
+  await page.goto('/politicos');
+  await expect(page.locator('.pres-card')).toBeVisible();
+  await page.locator('.pres-card').click();
+  await expect(page).toHaveURL(/\/politicos\/executivo\/presidencia/);
 });
 
 test('melhorias: sem banco configurado mostra fallback honesto', async ({ page }) => {

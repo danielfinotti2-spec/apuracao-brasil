@@ -94,7 +94,9 @@ export default async function ApoiarPage({ searchParams }: { searchParams: Promi
             <header><h2>{t(L, 'pix.h2')}</h2></header>
             <p className="sub">{t(L, 'pix.note')}</p>
             <div className="pix-box">
-              <span className="pix-qr"><img src="/pix-qr.png" alt="QR Code Pix do criador do portal" /></span>
+              <a className="pix-qr" href="/pix-qr.png" target="_blank" rel="noreferrer" title={t(L, 'pix.h2')}>
+                <img src="/pix-qr.png" alt="QR Code Pix do criador do portal" />
+              </a>
               <div>
                 <p className="pix-key">{PIX_KEY}</p>
                 <PixCopy pixKey={PIX_KEY} cta={t(L, 'pix.cta')} copied={t(L, 'pix.copied')} />

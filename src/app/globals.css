@@ -828,3 +828,29 @@ html[data-theme="dark"] .coll-head:hover{background:#1b201a}
   .coll-head{padding:13px 14px;font-size:14px}
   .coll-inner{padding:0 14px}
 }
+
+/* ================================================================
+   FASE 9 — monograma institucional + card do presidente
+   ================================================================ */
+.profile-photo.mono{display:grid;place-items:center;background:linear-gradient(160deg,#17643a,#0d3d23);color:#fff}
+.profile-photo.mono span{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:44px;letter-spacing:1px}
+.pres-card{position:relative;display:flex;gap:14px;align-items:center;border:1px solid var(--lineP);border-radius:8px;
+  background:var(--surface);padding:16px 18px;margin:0 0 14px;transition:transform .3s cubic-bezier(.22,.68,.24,1),border-color .3s}
+.pres-card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.pres-card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:2px;background:#17643a}
+.pres-card .profile-photo.mono{width:64px;height:64px;border-radius:8px}
+.pres-card .profile-photo.mono span{font-size:22px}
+.pres-card b{font-size:16px;color:var(--inkP)}
+.pres-card small{display:block;font-weight:400;color:var(--mutedP);line-height:1.5;margin-top:2px}
+.pres-card .go{margin-left:auto;color:var(--accent);font-weight:700;text-decoration:none;white-space:nowrap;font-size:13px}
+html[data-theme="dark"] .pres-card .profile-photo.mono{background:linear-gradient(160deg,#1d7c47,#0d3d23)}
+@media(max-width:560px){.pres-card .profile-photo.mono{width:52px;height:52px}.pres-card b{font-size:14.5px}}
+
+/* pix mobile: QR maior e chave toque-para-copiar */
+.pix-qr{cursor:zoom-in}
+.pix-key{cursor:pointer;user-select:all;-webkit-tap-highlight-color:var(--accentSoft)}
+@media(max-width:560px){
+  .pix-box{flex-direction:column;align-items:stretch}
+  .pix-qr{width:100%;height:auto;aspect-ratio:121/111;padding:10px}
+  .pix-qr img{height:auto;aspect-ratio:121/111;object-fit:contain}
+}

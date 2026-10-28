@@ -4,6 +4,14 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Fiscaliza Brasil — Transparência política com fontes oficiais',
   description: 'Portal independente de transparência política: perfis de deputados e senadores com dados oficiais, atividade do dia no Congresso e mapa da representação por estado. Cada dado exibe fonte, data de coleta e selo de verificação.',
+  manifest: '/manifest.webmanifest',
+  icons: { icon: '/icon-192.png', apple: '/icon-192.png' },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#17643a',
 };
 
 // Aplica o tema antes da pintura para evitar flash de cor.
