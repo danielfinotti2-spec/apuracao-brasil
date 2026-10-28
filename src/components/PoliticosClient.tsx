@@ -69,7 +69,7 @@ export default function PoliticosClient() {
         {data && <span className="count-tag">{data.politicians.length} mandatos em exercício</span>}
       </div>
 
-      <div className="filters" role="search">
+      <div className="filters a" style={{ ['--ad' as any]: '120ms' }} role="search">
         <div className="search-wrap">
           <span className="search-icon">⌕</span>
           <input aria-label="Buscar político por nome" placeholder="Buscar por nome…" value={query} onChange={e => setQuery(e.target.value)} />
@@ -113,8 +113,13 @@ export default function PoliticosClient() {
         <>
           <p className="result-count" aria-live="polite">{filtered.length} de {data.politicians.length} políticos</p>
           <div className="pol-grid">
-            {filtered.map(p => (
-              <Link key={`${p.chamber}-${p.id}`} className="pol-card" href={`/politicos/${p.chamber}/${p.id}`}>
+            {filtered.map((p, i) => (
+              <Link
+                key={`${p.chamber}-${p.id}`}
+                className="pol-card a"
+                style={{ ['--ad' as any]: `${180 + Math.min(i, 14) * 34}ms` }}
+                href={`/politicos/${p.chamber}/${p.id}`}
+              >
                 <Photo p={p} />
                 <div className="pol-info">
                   <b>{p.name}</b>

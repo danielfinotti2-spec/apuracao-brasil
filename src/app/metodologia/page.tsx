@@ -30,7 +30,7 @@ const RULES = [
   ['Não inventamos dados', 'Se uma API oficial não publicou uma informação, a interface mostra a indisponibilidade e a última sincronização conhecida, em vez de preencher com estimativas ou números genéricos.'],
   ['Falhas de fonte ficam visíveis', 'Quando um órgão sai do ar ou muda o formato, a página exibe o aviso de indisponibilidade e o erro registrado. Sincronizações com erro nunca são escondidas.'],
   ['Sem conclusões por ausência', 'Não encontrar um evento público não prova que o político não trabalhou. Ausência de registro não é prova de ausência de atividade.'],
-  ['Processo não é prova de culpa', 'Investigação, inquérito, denúncia, ação judicial, condenação recorrivel e condenação definitiva são situações diferentes e serão sempre rotuladas separadamente quando o módulo judiciário entrar no ar.'],
+  ['Processo não é prova de culpa', 'Investigação, inquérito, denúncia, ação judicial, condenação recorrível e condenação definitiva são situações diferentes e serão sempre rotuladas separadamente quando o módulo judiciário entrar no ar.'],
   ['Identidade exige evidência', 'Nunca associamos processos, viagens ou notícias a um político apenas por semelhança de nome. Exigimos identificadores ou elementos suficientes para confirmar a correspondência.'],
   ['Resumos, não cópias', 'Notícias automáticas (fase futura) serão resumos originais com link para a fonte. Não copiamos matérias protegidas por direitos autorais.'],
   ['Neutralidade política', 'Não criamos rankings de melhores ou piores políticos, nem atribuímos notas de honestidade ou competência.'],
@@ -41,7 +41,7 @@ export default function MetodologiaPage() {
     <main className="site">
       <SiteHeader />
       <div className="site-body">
-        <section className="page-head">
+        <section className="page-head a" style={{ ['--ad' as any]: '80ms' }}>
           <h1>Metodologia de verificação</h1>
           <p className="lede">
             Cada registro do portal carrega três coisas: a fonte consultada, a data da coleta e um
@@ -49,10 +49,10 @@ export default function MetodologiaPage() {
           </p>
         </section>
 
-        <section className="bloco metodo-section" aria-label="Selos de confiança">
+        <section className="bloco metodo-section a" style={{ ['--ad' as any]: '180ms' }} aria-label="Selos de confiança">
           <header>
             <h2>Os quatro selos</h2>
-            <p className="sub">Aplicados por regras de origem e evidência, nunca pela “confiança” de um modelo de IA.</p>
+            <p className="sub">Aplicados por regras de origem e evidência, nunca pela "confiança" de um modelo de IA.</p>
           </header>
           <div className="seal-grid">
             {SEALS.map(s => (
@@ -64,7 +64,7 @@ export default function MetodologiaPage() {
           </div>
         </section>
 
-        <section className="bloco metodo-section" aria-label="Regras do portal">
+        <section className="bloco metodo-section a" style={{ ['--ad' as any]: '280ms' }} aria-label="Regras do portal">
           <header>
             <h2>Regras do portal</h2>
           </header>
@@ -75,7 +75,7 @@ export default function MetodologiaPage() {
           </ul>
         </section>
 
-        <section className="bloco metodo-section" aria-label="Fluxo de coleta">
+        <section className="bloco metodo-section a" style={{ ['--ad' as any]: '380ms' }} aria-label="Fluxo de coleta">
           <header>
             <h2>Fluxo de coleta e atualização</h2>
             <p className="sub">O que acontece entre a API oficial e a tela.</p>
@@ -94,7 +94,7 @@ export default function MetodologiaPage() {
           </p>
         </section>
 
-        <section className="bloco metodo-section" aria-label="Correções e direito de resposta">
+        <section className="bloco metodo-section a" style={{ ['--ad' as any]: '480ms' }} aria-label="Correções e direito de resposta">
           <header>
             <h2>Correções e direito de resposta</h2>
           </header>

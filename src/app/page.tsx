@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import SiteHeader from '@/components/SiteHeader';
+import CountUp from '@/components/CountUp';
 import { listAllPoliticians } from '@/services/politicians';
 
 export const metadata = {
@@ -23,31 +24,31 @@ export default async function Home() {
       <div className="site-body">
         <section className="masthead">
           <div>
-            <h1>Fiscalize quem você elegeu.</h1>
-            <p className="lede">
+            <h1 className="a" style={{ ['--ad' as any]: '60ms' }}>Fiscalize quem você elegeu.</h1>
+            <p className="lede a" style={{ ['--ad' as any]: '150ms' }}>
               Portal independente de transparência política. Reunimos o registro oficial de deputados
               federais e senadores — foto, despesas da cota, proposições e votações — coletado das APIs
               públicas das duas casas, sempre com a fonte e a data da coleta na tela. Sem rankings,
               sem notas subjetivas, sem dados inventados.
             </p>
-            <div className="hero-actions">
+            <div className="hero-actions a" style={{ ['--ad' as any]: '240ms' }}>
               <Link className="btn primary" href="/politicos">Buscar políticos</Link>
               <Link className="btn" href="/apuracao">Abrir mapa da apuração</Link>
             </div>
             {failed > 0 && (
-              <p className="sync-warning" role="alert">
+              <p className="sync-warning a" style={{ ['--ad' as any]: '330ms' }} role="alert">
                 <b>Fonte indisponível:</b> {failed} fonte oficial não respondeu na última sincronização.
                 Os detalhes estão visíveis no diretório.
               </p>
             )}
           </div>
-          <aside className="monitor" aria-label="Monitoramento das fontes">
+          <aside className="monitor a" style={{ ['--ad' as any]: '320ms' }} aria-label="Monitoramento das fontes">
             <h2>Monitoramento</h2>
             <dl>
-              <div><dt>Deputados federais em exercício</dt><dd>{deputados ?? '—'}</dd></div>
-              <div><dt>Senadores em exercício</dt><dd>{senadores ?? '—'}</dd></div>
-              <div><dt>Fontes oficiais integradas</dt><dd>{data ? data.sources.length + 2 : '—'}</dd></div>
-              <div><dt>Mandatos no diretório</dt><dd>{data ? data.politicians.length : '—'}</dd></div>
+              <div><dt>Deputados federais em exercício</dt><dd><CountUp value={deputados} /></dd></div>
+              <div><dt>Senadores em exercício</dt><dd><CountUp value={senadores} /></dd></div>
+              <div><dt>Fontes oficiais integradas</dt><dd><CountUp value={data ? data.sources.length + 2 : null} /></dd></div>
+              <div><dt>Mandatos no diretório</dt><dd><CountUp value={data ? data.politicians.length : null} /></dd></div>
             </dl>
             <p className="sync">
               Última sincronização: <b>{fetchedAt ?? 'indisponível'}</b> (horário de Brasília).
@@ -57,7 +58,7 @@ export default async function Home() {
         </section>
 
         <section className="module-list" aria-label="Módulos do portal">
-          <Link className="module-row" href="/politicos">
+          <Link className="module-row a" style={{ ['--ad' as any]: '400ms' }} href="/politicos">
             <h2>Diretório de políticos</h2>
             <p>
               Busque por nome, partido, estado ou casa legislativa. Cada perfil traz foto oficial,
@@ -66,7 +67,7 @@ export default async function Home() {
             </p>
             <span className="go">Abrir diretório</span>
           </Link>
-          <Link className="module-row" href="/apuracao">
+          <Link className="module-row a" style={{ ['--ad' as any]: '480ms' }} href="/apuracao">
             <h2>Mapa da apuração</h2>
             <p>
               Resultados oficiais do TSE sobre as malhas territoriais do IBGE, por cargo, turno,
@@ -74,7 +75,7 @@ export default async function Home() {
             </p>
             <span className="go">Abrir o mapa</span>
           </Link>
-          <Link className="module-row" href="/metodologia">
+          <Link className="module-row a" style={{ ['--ad' as any]: '560ms' }} href="/metodologia">
             <h2>Metodologia de verificação</h2>
             <p>
               Como cada registro recebe origem, data de coleta e um dos quatro selos de confiança —
@@ -84,7 +85,7 @@ export default async function Home() {
           </Link>
         </section>
 
-        <section className="bloco" aria-label="Fontes oficiais">
+        <section className="bloco a" style={{ ['--ad' as any]: '640ms' }} aria-label="Fontes oficiais">
           <header>
             <h2>Fontes oficiais consultadas</h2>
             <p className="sub">O portal lê diretamente os serviços públicos abaixo.</p>
@@ -128,7 +129,7 @@ export default async function Home() {
           </table>
         </section>
 
-        <section className="bloco" aria-label="Estado do projeto">
+        <section className="bloco a" style={{ ['--ad' as any]: '720ms' }} aria-label="Estado do projeto">
           <header>
             <h2>O que já funciona e o que vem a seguir</h2>
             <p className="sub">Funcionalidades marcadas como planejadas ainda não estão no ar.</p>

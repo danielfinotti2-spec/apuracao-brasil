@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import SiteHeader from '@/components/SiteHeader';
 import Seal from '@/components/Seal';
+import CountUp from '@/components/CountUp';
 import SourceList from '@/components/SourceList';
 import { getDeputadoProfile } from '@/services/camara';
 import { formatDate, formatDateTime, formatMoney, MONTHS } from '@/lib/format';
@@ -34,7 +35,7 @@ export default async function DeputadoPage({ params }: { params: Promise<{ id: s
           <Link href="/">Início</Link><span> / </span><Link href="/politicos">Políticos</Link><span> / </span><span className="on">{p.name}</span>
         </nav>
 
-        <header className="profile-hero">
+        <header className="profile-hero a" style={{ ['--ad' as any]: '80ms' }}>
           <img className="profile-photo" src={p.photoUrl} alt={`Foto oficial de ${p.name}`} referrerPolicy="no-referrer" />
           <div className="profile-id">
             <div className="profile-tags">
@@ -57,25 +58,25 @@ export default async function DeputadoPage({ params }: { params: Promise<{ id: s
           </div>
         </header>
 
-        <section className="profile-kpis" aria-label="Resumo">
+        <section className="profile-kpis a" style={{ ['--ad' as any]: '180ms' }} aria-label="Resumo">
           <div>
             <span>Proposições de autoria</span>
-            <b>{profile.proposals.length}</b>
+            <b><CountUp value={profile.proposals.length} /></b>
             <small>mais recentes registradas na API</small>
           </div>
           <div>
             <span>Despesas no período carregado</span>
-            <b>{formatMoney(profile.expenses.periodTotal)}</b>
+            <b><CountUp value={profile.expenses.periodTotal} format="money" /></b>
             <small>{profile.expenses.loadedMonths}</small>
           </div>
           <div>
             <span>Eventos oficiais em 90 dias</span>
-            <b>{profile.events.items.length}</b>
+            <b><CountUp value={profile.events.items.length} /></b>
             <small>participações registradas na agenda</small>
           </div>
         </section>
 
-        <div className="profile-grid">
+        <div className="profile-grid a" style={{ ['--ad' as any]: '280ms' }}>
           <section className="profile-section" aria-label="Informações institucionais">
             <h2>Visão geral</h2>
             <dl className="facts">

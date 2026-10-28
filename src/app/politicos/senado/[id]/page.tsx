@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import SiteHeader from '@/components/SiteHeader';
 import Seal from '@/components/Seal';
+import CountUp from '@/components/CountUp';
 import SourceList from '@/components/SourceList';
 import { getSenadorProfile } from '@/services/senado';
 import { formatDate } from '@/lib/format';
@@ -43,7 +44,7 @@ export default async function SenadorPage({ params }: { params: Promise<{ id: st
           <Link href="/">Início</Link><span> / </span><Link href="/politicos">Políticos</Link><span> / </span><span className="on">{p.name}</span>
         </nav>
 
-        <header className="profile-hero">
+        <header className="profile-hero a" style={{ ['--ad' as any]: '80ms' }}>
           <img className="profile-photo" src={p.photoUrl} alt={`Foto oficial de ${p.name}`} referrerPolicy="no-referrer" />
           <div className="profile-id">
             <div className="profile-tags">
@@ -61,25 +62,25 @@ export default async function SenadorPage({ params }: { params: Promise<{ id: st
           </div>
         </header>
 
-        <section className="profile-kpis" aria-label="Resumo de votações">
+        <section className="profile-kpis a" style={{ ['--ad' as any]: '180ms' }} aria-label="Resumo de votações">
           <div>
             <span>Votações nominais registradas</span>
-            <b>{profile.votes.length}</b>
+            <b><CountUp value={profile.votes.length} /></b>
             <small>histórico publicado pelo serviço do Senado</small>
           </div>
           <div>
             <span>Votos “Sim”</span>
-            <b>{yes}</b>
+            <b><CountUp value={yes} /></b>
             <small>neste histórico</small>
           </div>
           <div>
             <span>Votos “Não”</span>
-            <b>{no}</b>
+            <b><CountUp value={no} /></b>
             <small>neste histórico</small>
           </div>
         </section>
 
-        <div className="profile-grid">
+        <div className="profile-grid a" style={{ ['--ad' as any]: '280ms' }}>
           <section className="profile-section" aria-label="Informações institucionais">
             <h2>Visão geral</h2>
             <dl className="facts">

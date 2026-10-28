@@ -154,7 +154,7 @@ export default function Dashboard() {
 
   return <main className="app">
     <header className="topbar">
-      <Link className="brand" href="/" aria-label="Fiscaliza Brasil, início"><span className="brand-mark"><i /><i /><i /></span><span className="brand-text"><b>fiscaliza</b> brasil</span></Link>
+      <Link className="brand" href="/" aria-label="Fiscaliza Brasil, início"><span className="brand-mark"><i /><i /><i /></span><span className="brand-text">Fiscaliza<b>Brasil</b></span></Link>
       <div className="seg" role="group" aria-label="Escopo">{(['brasil', 'exterior'] as const).map(item => <button key={item} className={scope === item ? 'on' : ''} onClick={() => { if (item === 'exterior') { setOffice('Presidente'); goBrazil(); } setScope(item); }}>{item === 'brasil' ? 'Brasil' : 'Exterior'}</button>)}</div>
       <nav className="tabs" aria-label="Cargo">{offices.map(item => <button key={item} className={office === item ? 'on' : ''} onClick={() => { setOffice(item); if (item !== 'Presidente') setScope('brasil'); }}>{item}</button>)}</nav>
       <div className="top-meta">TSE + IBGE</div>
