@@ -21,9 +21,11 @@ export default function SiteHeader({ active, lang = 'pt' }: { active?: string; l
           <Link href={`/rankings${q}`} className={active === 'rankings' ? 'active' : ''}>{t(lang, 'nav.rankings')}</Link>
           <Link href={`/metodologia${q}`} className={active === 'metodologia' ? 'active' : ''}>{t(lang, 'nav.methodology')}</Link>
         </nav>
-        <LangSwitcher lang={lang} />
-        <ThemeToggle lang={lang} />
-        <MobileMenu active={active} lang={lang} />
+        <div className="hdr-tools">
+          <LangSwitcher lang={lang} />
+          <ThemeToggle lang={lang} />
+          <MobileMenu active={active} lang={lang} />
+        </div>
       </header>
     </>
   );

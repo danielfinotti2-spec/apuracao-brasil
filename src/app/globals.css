@@ -910,3 +910,96 @@ html[data-theme="dark"] .pres-card .profile-photo.mono{background:linear-gradien
   .pol-info b{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.3}
   .house-tag{white-space:normal;text-align:center}
 }
+
+/* ================================================================
+   FASE 12 — splash de entrada, drawer lateral, header centrado,
+             rodapé centrado, animações profissionais
+   ================================================================ */
+
+/* ---------- splash (~2s, 1x por sessão, some sozinho) ---------- */
+.splash{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#f6f6f4;
+  animation:splashOut .55s cubic-bezier(.65,.05,.36,1) 1.9s forwards}
+html[data-splash="skip"] .splash{display:none}
+html[data-theme="dark"] .splash{background:#101310}
+.splash-core{display:flex;flex-direction:column;align-items:center;gap:14px;transform:translateY(-4vh)}
+.splash-mark{display:flex;gap:5px;align-items:flex-end;height:30px}
+.splash-mark i{display:block;width:7px;border-radius:2px;transform:scaleY(0);transform-origin:bottom;
+  animation:splashBar .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.splash-mark i:nth-child(1){height:13px;background:#009c3b;animation-delay:.05s}
+.splash-mark i:nth-child(2){height:24px;background:#d9b300;animation-delay:.17s}
+.splash-mark i:nth-child(3){height:18px;background:#002776;animation-delay:.29s}
+.splash-name{font:700 30px/1 'IBM Plex Sans';letter-spacing:-.03em;color:#1f241e;opacity:0;
+  transform:translateY(14px);animation:splashUp .55s cubic-bezier(.22,.68,.24,1) .42s forwards}
+html[data-theme="dark"] .splash-name{color:#edf0ea}
+.splash-name b{color:#146c43}
+.splash-sub{font:500 12.5px 'IBM Plex Sans';color:#5d665c;letter-spacing:.14em;text-transform:uppercase;opacity:0;
+  animation:splashFade .4s ease .75s forwards}
+html[data-theme="dark"] .splash-sub{color:#a5ada2}
+.splash-bar{width:180px;height:2px;background:#e0e1da;border-radius:2px;overflow:hidden;opacity:0;
+  animation:splashFade .3s ease .6s forwards}
+html[data-theme="dark"] .splash-bar{background:#262b24}
+.splash-bar span{display:block;height:100%;width:100%;background:#146c43;transform:scaleX(0);transform-origin:left;
+  animation:splashLoad 1.35s cubic-bezier(.65,.05,.36,1) .55s forwards}
+@keyframes splashBar{to{transform:scaleY(1)}}
+@keyframes splashUp{to{opacity:1;transform:none}}
+@keyframes splashFade{to{opacity:1}}
+@keyframes splashLoad{to{transform:scaleX(1)}}
+@keyframes splashOut{to{opacity:0;transform:translateY(-26px);visibility:hidden}}
+
+/* ---------- header: logo no meio (desktop), tudo maior no mobile ---------- */
+.site-header{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:26px}
+.site-header .wordmark{grid-column:2;grid-row:1;justify-self:center;transition:transform .3s cubic-bezier(.22,.68,.24,1)}
+.site-header .wordmark:hover{transform:translateY(-1px)}
+.site-header .wordmark:hover .brand-mark i{animation:brandPulse .55s ease both}
+.site-header .wordmark:hover .brand-mark i:nth-child(2){animation-delay:.07s}
+.site-header .wordmark:hover .brand-mark i:nth-child(3){animation-delay:.14s}
+@keyframes brandPulse{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.62)}}
+.site-header .site-nav{grid-column:1;grid-row:1;justify-self:start;margin-left:0}
+.hdr-tools{display:flex;align-items:center;gap:12px;grid-column:3;grid-row:1;justify-self:end}
+
+/* link de navegação com sublinhado deslizante */
+.site-nav a{position:relative;border-bottom:0;padding:4px 0;transition:color .25s ease}
+.site-nav a::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--accent);
+  transform:scaleX(0);transform-origin:right;transition:transform .38s cubic-bezier(.22,.68,.24,1)}
+.site-nav a:hover::after{transform:scaleX(1);transform-origin:left}
+.site-nav a.active::after{transform:scaleX(1)}
+
+/* botões com micro-elevação */
+.site .btn{transition:transform .25s cubic-bezier(.22,.68,.24,1),background .2s,border-color .2s,box-shadow .25s}
+.site .btn:hover{transform:translateY(-1px)}
+.site .btn.primary:hover{box-shadow:0 8px 20px rgba(20,108,67,.28)}
+
+/* ---------- rodapé centralizado ---------- */
+.site .foot{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
+
+/* ---------- hambúrguer sem borda, alvo de toque maior ---------- */
+@media(max-width:760px){
+  .site-header{grid-template-columns:auto minmax(0,1fr) auto;gap:10px;padding:12px 14px}
+  .site-header .wordmark{grid-column:1;justify-self:start}
+  .hdr-tools{grid-column:3;justify-self:end;gap:8px}
+  .burger{width:44px;height:44px;border:0;background:transparent;gap:6px}
+  .burger span{width:22px;height:2.5px}
+  .burger span:nth-child(1){transform:none}
+  .mobile-menu.open .burger span:nth-child(1){transform:translateY(8.5px) rotate(45deg)}
+  .mobile-menu.open .burger span:nth-child(3){transform:translateY(-8.5px) rotate(-45deg)}
+
+  /* drawer lateral */
+  .menu-scrim{position:fixed;inset:0;background:rgba(12,16,12,.5);backdrop-filter:blur(2px);z-index:80;
+    opacity:0;visibility:hidden;transition:opacity .35s ease,visibility .35s}
+  .mobile-menu.open .menu-scrim{opacity:1;visibility:visible}
+  .mobile-menu .burger{position:relative;z-index:95}
+  .mobile-nav-panel{position:fixed;top:0;right:0;bottom:0;height:100dvh;width:min(300px,86vw);z-index:90;
+    background:var(--paper);border:0;border-left:2px solid var(--inkP);border-radius:0;
+    box-shadow:-22px 0 60px rgba(0,0,0,.22);display:flex;flex-direction:column;
+    transform:translateX(105%);opacity:1;visibility:hidden;
+    transition:transform .45s cubic-bezier(.22,.68,.24,1),visibility .45s}
+  .mobile-menu.open .mobile-nav-panel{transform:none;visibility:visible}
+  .mobile-nav-head{display:flex;align-items:baseline;gap:8px;padding:22px 22px 14px;border-bottom:1px solid var(--lineP)}
+  .mobile-nav-inner{flex:1;padding:14px;overflow-y:auto}
+  .mobile-nav-inner a{font-size:16px;padding:13px 14px;font-weight:600;
+    opacity:0;transform:translateX(22px);transition:opacity .3s ease,transform .4s cubic-bezier(.22,.68,.24,1),color .2s,background .2s}
+  .mobile-menu.open .mobile-nav-inner a{opacity:1;transform:none;transition-delay:calc(90ms + var(--i) * 55ms)}
+  .mobile-menu.open .mobile-nav-inner a.active{transition-delay:calc(90ms + var(--i) * 55ms)}
+  .mobile-nav-foot{margin:0;padding:14px 22px 20px;border-top:1px solid var(--lineP);font-size:11px;color:var(--faintP);font-weight:400}
+}
+body.menu-lock{overflow:hidden}

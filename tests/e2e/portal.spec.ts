@@ -76,6 +76,11 @@ test('diretório: falha de fonte oficial fica visível, nunca escondida', async 
 
 // Aquece a coleta do dia antes da suíte: sem cache, o servidor leva até ~2 min
 // juntando eventos, autores e presenças das APIs oficiais.
+test.beforeEach(async ({ page }) => {
+  // pula o splash de entrada (~2s) para os cliques não baterem na sobreposição
+  await page.addInitScript(() => { try { sessionStorage.setItem('fb-splash', '1'); } catch { /* noop */ } });
+});
+
 test.beforeAll(async ({ request }) => {
   await request.get('/hoje', { timeout: 240_000 }).catch(() => {});
 });

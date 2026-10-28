@@ -7,7 +7,8 @@ import { t, type Locale } from '@/i18n/messages';
 
 /**
  * Menu hambúrguer do mobile: só aparece abaixo de 760px (CSS).
- * Abre/fecha animado, virando X; fecha ao navegar.
+ * Abre um drawer lateral com as opções (em cascata) + fundo esmaecido.
+ * Fecha ao tocar fora, navegar ou apertar o X.
  */
 export default function MobileMenu({ active, lang }: { active?: string; lang: Locale }) {
   const [open, setOpen] = useState(false);
@@ -15,6 +16,10 @@ export default function MobileMenu({ active, lang }: { active?: string; lang: Lo
   const q = lang === 'pt' ? '' : `?lang=${lang}`;
 
   useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    document.body.classList.toggle('menu-lock', open);
+    return () => document.body.classList.remove('menu-lock');
+  }, [open]);
 
   const links = [
     { href: `/${q}`, key: 'home', label: t(lang, 'nav.home') },
@@ -35,19 +40,26 @@ export default function MobileMenu({ active, lang }: { active?: string; lang: Lo
       >
         <span /><span /><span />
       </button>
+      <div className="menu-scrim" aria-hidden="true" onClick={() => setOpen(false)} />
       <nav className="mobile-nav-panel" id="mobile-nav-panel" aria-hidden={!open} aria-label={t(lang, 'nav.main')}>
+        <div className="mobile-nav-head">
+          <span className="brand-mark"><i /><i /><i /></span>
+          <span className="brand-text">Fiscaliza<b>Brasil</b></span>
+        </div>
         <div className="mobile-nav-inner">
-          {links.map(l => (
+          {links.map((l, i) => (
             <Link
               key={l.key}
               href={l.href}
               className={active === l.key ? 'active' : ''}
+              style={{ ['--i' as any]: i }}
               onClick={() => setOpen(false)}
             >
               {l.label}
             </Link>
           ))}
         </div>
+        <p className="mobile-nav-foot">{t(lang, 'footer.line')}</p>
       </nav>
     </div>
   );
