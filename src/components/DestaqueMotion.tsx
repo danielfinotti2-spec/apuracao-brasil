@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
  * Entra "parabenizando" o autor: selo que estoura e varredura de brilho, uma só vez.
  * Honesto por construção: o destaque é um FATO (mais recente), não um julgamento.
  */
-export default function DestaqueMotion({ badge, title, children }: { badge: string; title: string; children: React.ReactNode }) {
+export default function DestaqueMotion({ badge, title, note, children }: { badge: string; title: string; note?: React.ReactNode; children: React.ReactNode }) {
   const [celebrate, setCelebrate] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -28,6 +28,7 @@ export default function DestaqueMotion({ badge, title, children }: { badge: stri
       <div className="destaque-body">
         <h2>{title}</h2>
         {children}
+        {note && <p className="destaque-note">{note}</p>}
       </div>
       {celebrate && (
         <div className="confetti" aria-hidden="true">

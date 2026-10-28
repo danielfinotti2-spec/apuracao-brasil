@@ -3,9 +3,13 @@ import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import Reveal from '@/components/Reveal';
 import SocialLinks from '@/components/SocialLinks';
-import { pickLang, type Locale } from '@/i18n/messages';
+import PixCopy from '@/components/PixCopy';
+import { pickLang, t, type Locale } from '@/i18n/messages';
 
 export const metadata = { title: 'Apoie o projeto | Fiscaliza Brasil' };
+
+// Chave Pix (aleatória) do criador do portal — fornecida por ele nesta sessão.
+const PIX_KEY = '6a23c1f5-b246-457d-970c-c41b8a0220e0';
 
 const CONTENT: Record<Locale, {
   h1: string; lede: string;
@@ -86,9 +90,16 @@ export default async function ApoiarPage({ searchParams }: { searchParams: Promi
         </div>
 
         <Reveal>
-          <section className="bloco" aria-label={c.donateH}>
-            <header><h2>{c.donateH}</h2></header>
-            <p className="sub">{c.donateP}</p>
+          <section className="bloco" aria-label={t(L, 'pix.h2')}>
+            <header><h2>{t(L, 'pix.h2')}</h2></header>
+            <p className="sub">{t(L, 'pix.note')}</p>
+            <div className="pix-box">
+              <span className="pix-qr"><img src="/pix-qr.png" alt="QR Code Pix do criador do portal" /></span>
+              <div>
+                <p className="pix-key">{PIX_KEY}</p>
+                <PixCopy pixKey={PIX_KEY} cta={t(L, 'pix.cta')} copied={t(L, 'pix.copied')} />
+              </div>
+            </div>
           </section>
         </Reveal>
 

@@ -5,7 +5,7 @@ import SiteFooter from '@/components/SiteFooter';
 import Seal from '@/components/Seal';
 import CountUp from '@/components/CountUp';
 import PartyMark from '@/components/PartyMark';
-import Reveal from '@/components/Reveal';
+import Collapsible from '@/components/Collapsible';
 import SourceList from '@/components/SourceList';
 import { getSenadorProfile } from '@/services/senado';
 import { formatDate } from '@/lib/format';
@@ -75,7 +75,6 @@ export default async function SenadorPage({ params, searchParams }: { params: Pr
           <a href="#identificacao">{t(L, 'profile.overview')}</a>
           <a href="#votacoes">{t(L, 'profile.sec.votes')}</a>
           <a href="#salario">{t(L, 'profile.salary.h')}</a>
-          <a href="#judicial">{t(L, 'profile.judicial.h')}</a>
           <a href="#fontes">{t(L, 'common.source')}</a>
         </nav>
 
@@ -112,49 +111,39 @@ export default async function SenadorPage({ params, searchParams }: { params: Pr
           </section>
 
           <section className="profile-section" id="salario" aria-label={t(L, 'profile.salary.h')}>
-            <h2>{t(L, 'profile.salary.h')} <span className="status-tag">{t(L, 'profile.judicial.tag.plan')}</span></h2>
+            <h2>{t(L, 'profile.salary.h')}</h2>
             <p>{t(L, 'profile.salary.p.senado')}</p>
             <p className="fine">
               <a href="https://www.senado.leg.br/transparencia" target="_blank" rel="noreferrer">{t(L, 'profile.salary.link')}</a>
             </p>
           </section>
 
-          <Reveal>
-            <section className="profile-section votes-section" id="votacoes" aria-label={t(L, 'profile.sec.votes')}>
-              <h2>{t(L, 'profile.sec.votes')} <Seal status="oficial-confirmada" compact lang={L} /></h2>
-              <p className="sub">{t(L, 'profile.votes.sub')}</p>
-              {profile.votesNote && <p className="sync-warning" role="note"><b>{t(L, 'common.source')}:</b> {t(L, 'profile.votes.noteDeprec')}</p>}
-              {profile.votes.length === 0 && <p className="empty-note">{t(L, 'profile.votes.empty')}</p>}
-              <table className="table votes-table">
-                <thead>
-                  <tr><th>{L === 'en' ? 'Date' : L === 'es' ? 'Fecha' : 'Data'}</th><th>{L === 'en' ? 'Matter and vote' : L === 'es' ? 'Materia y votación' : 'Matéria e votação'}</th><th className="num">{L === 'en' ? 'Vote' : 'Voto'}</th></tr>
-                </thead>
-                <tbody>
-                  {profile.votes.slice(0, 30).map((v, i) => (
-                    <tr key={`${v.matterCode}-${v.date}-${i}`}>
-                      <td className="num">{formatDate(v.date)}</td>
-                      <td>
-                        <b>{v.matter || v.description || 'Votação nominal'}</b>
-                        <small style={{ display: 'block', marginTop: 2 }}>
-                          {v.description}
-                          {v.result ? ` — resultado: ${v.result}` : ''}
-                          {v.secret ? ' — votação secreta' : ''}
-                        </small>
-                      </td>
-                      <td className="num"><span className={`vote ${voteClass(v.vote)}`}>{v.vote || '—'}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </section>
-          </Reveal>
-
-          <Reveal delay={120}>
-            <section className="profile-section" id="judicial" aria-label={t(L, 'profile.judicial.h')}>
-              <h2>{t(L, 'profile.judicial.h')} <span className="status-tag">{t(L, 'profile.judicial.tag.plan')}</span></h2>
-              <p>{t(L, 'profile.judicial.p')}</p>
-            </section>
-          </Reveal>
+          <Collapsible id="votacoes" defaultOpen title={<>{t(L, 'profile.sec.votes')} <Seal status="oficial-confirmada" compact lang={L} /></>}>
+            <p className="sub">{t(L, 'profile.votes.sub')}</p>
+            {profile.votesNote && <p className="sync-warning" role="note"><b>{t(L, 'common.source')}:</b> {t(L, 'profile.votes.noteDeprec')}</p>}
+            {profile.votes.length === 0 && <p className="empty-note">{t(L, 'profile.votes.empty')}</p>}
+            <table className="table votes-table">
+              <thead>
+                <tr><th>{L === 'en' ? 'Date' : L === 'es' ? 'Fecha' : 'Data'}</th><th>{L === 'en' ? 'Matter and vote' : L === 'es' ? 'Materia y votación' : 'Matéria e votação'}</th><th className="num">{L === 'en' ? 'Vote' : 'Voto'}</th></tr>
+              </thead>
+              <tbody>
+                {profile.votes.slice(0, 30).map((v, i) => (
+                  <tr key={`${v.matterCode}-${v.date}-${i}`}>
+                    <td className="num">{formatDate(v.date)}</td>
+                    <td>
+                      <b>{v.matter || v.description || 'Votação nominal'}</b>
+                      <small style={{ display: 'block', marginTop: 2 }}>
+                        {v.description}
+                        {v.result ? ` — resultado: ${v.result}` : ''}
+                        {v.secret ? ' — votação secreta' : ''}
+                      </small>
+                    </td>
+                    <td className="num"><span className={`vote ${voteClass(v.vote)}`}>{v.vote || '—'}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Collapsible>
         </div>
 
         <p className="pending-note">{t(L, 'profile.pending')}</p>

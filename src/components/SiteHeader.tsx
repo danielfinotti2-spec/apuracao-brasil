@@ -17,6 +17,7 @@ export default function SiteHeader({ active, lang = 'pt' }: { active?: string; l
           <Link href={`/${q}`} className={active === 'home' ? 'active' : ''}>{t(lang, 'nav.home')}</Link>
           <Link href={`/politicos${q}`} className={active === 'politicos' ? 'active' : ''}>{t(lang, 'nav.politicians')}</Link>
           <Link href={`/hoje${q}`} className={active === 'hoje' ? 'active' : ''}>{t(lang, 'nav.today')}</Link>
+          <Link href={`/rankings${q}`} className={active === 'rankings' ? 'active' : ''}>{t(lang, 'nav.rankings')}</Link>
           <Link href={`/metodologia${q}`} className={active === 'metodologia' ? 'active' : ''}>{t(lang, 'nav.methodology')}</Link>
         </nav>
         <LangSwitcher lang={lang} />

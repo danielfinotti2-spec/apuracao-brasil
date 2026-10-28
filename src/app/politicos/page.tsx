@@ -15,6 +15,12 @@ export default async function PoliticosPage({ searchParams }: { searchParams: Pr
     <main className="site">
       <SiteHeader active="politicos" lang={L} />
       <div className="site-body">
+        <div className="exec-strip a" style={{ ['--ad' as any]: '40ms' }}>
+          <span><b>{t(L, 'exec.title')}:</b> {t(L, 'exec.line')}</span>
+          <a href="https://www.gov.br/pt-br" target="_blank" rel="noreferrer">gov.br ↗</a>
+          <a href="https://www.gov.br/planalto/pt-br" target="_blank" rel="noreferrer">Palácio do Planalto ↗</a>
+          <span className="fine">{t(L, 'exec.limit')}</span>
+        </div>
         <Suspense fallback={<div className="map-loading"><span className="spinner" />…</div>}>
           <PoliticosClient
             L={L}

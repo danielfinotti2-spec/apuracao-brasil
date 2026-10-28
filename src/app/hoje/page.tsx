@@ -4,7 +4,7 @@ import SiteFooter from '@/components/SiteFooter';
 import DestaqueMotion from '@/components/DestaqueMotion';
 import PresenceTabs from '@/components/PresenceTabs';
 import CountUp from '@/components/CountUp';
-import Reveal from '@/components/Reveal';
+import Collapsible from '@/components/Collapsible';
 import SourceList from '@/components/SourceList';
 import { getTodayData } from '@/services/hoje';
 import { listAllPoliticians } from '@/services/politicians';
@@ -26,6 +26,14 @@ export default async function HojePage({ searchParams }: { searchParams: Promise
   const localeTag = L === 'en' ? 'en-US' : L === 'es' ? 'es-ES' : 'pt-BR';
   const [today, directory] = await Promise.all([getTodayData(), listAllPoliticians()]);
   const spotlight = today.proposals[0] ?? null;
+  const gloss: Record<string, string | undefined> = {
+    REQ: t(L, 'today.spotType.REQ'),
+    PL: t(L, 'today.spotType.PL'),
+    PEC: t(L, 'today.spotType.PEC'),
+    PDC: t(L, 'today.spotType.PDC'),
+    PLP: t(L, 'today.spotType.PL'),
+    MPV: t(L, 'today.spotType.MPV'),
+  };
 
   return (
     <main className="site">
@@ -39,7 +47,7 @@ export default async function HojePage({ searchParams }: { searchParams: Promise
         {today.dayNote && <p className="sync-warning" role="alert"><b>{t(L, 'home.sourceUnavailable')}:</b> {t(L, 'today.failNote')}</p>}
 
         {spotlight && (
-          <DestaqueMotion badge={t(L, 'today.badge')} title={`${spotlight.type} ${spotlight.number}${spotlight.year ? `/${spotlight.year}` : ''}`}>
+          <DestaqueMotion badge={t(L, 'today.badge')} title={`${spotlight.type} ${spotlight.number}${spotlight.year ? `/${spotlight.year}` : ''}`} note={gloss[spotlight.type] ?? t(L, 'today.spotType.generico')}>
             <p className="destaque-ementa">{spotlight.summary}</p>
             <p className="destaque-meta">
               {t(L, 'today.spotIntro')} {fmtTime(spotlight.presentedAt)} {t(L, 'today.spotBy')}{' '}
@@ -64,103 +72,91 @@ export default async function HojePage({ searchParams }: { searchParams: Promise
         </section>
 
         <div className="hoje-grid">
-          <Reveal>
-            <section className="profile-section vx">
-              <h2>{t(L, 'today.bills')}</h2>
-              {today.proposals.length === 0 ? (
-                <p className="empty-note">{t(L, 'today.bills.empty')}</p>
-              ) : (
-                <ul className="record-list">
-                  {today.proposals.map(p => (
-                    <li key={p.id}>
-                      <div className="prop-id-row">
-                        <span className="prop-id">{p.type} {p.number}{p.year ? `/${p.year}` : ''}</span>
-                        {p.authors[0] && <small className="prop-author">
-                          {p.authors[0].deputyId ? <Link href={`/politicos/camara/${p.authors[0].deputyId}${q}`}>{p.authors[0].name}</Link> : p.authors[0].name}
-                          {p.authors.length > 1 ? ` +${p.authors.length - 1}` : ''}
-                        </small>}
-                      </div>
-                      <p className="prop-ementa">{p.summary}</p>
-                      <div className="record-meta">
-                        <span>{fmtTime(p.presentedAt)}</span>
-                        <a href={p.portalUrl} target="_blank" rel="noreferrer">{t(L, 'today.spotLink')}</a>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </Reveal>
+          <Collapsible id="props" title={t(L, 'today.bills')} defaultOpen>
+            {today.proposals.length === 0 ? (
+              <p className="empty-note">{t(L, 'today.bills.empty')}</p>
+            ) : (
+              <ul className="record-list">
+                {today.proposals.map(p => (
+                  <li key={p.id}>
+                    <div className="prop-id-row">
+                      <span className="prop-id">{p.type} {p.number}{p.year ? `/${p.year}` : ''}</span>
+                      {p.authors[0] && <small className="prop-author">
+                        {p.authors[0].deputyId ? <Link href={`/politicos/camara/${p.authors[0].deputyId}${q}`}>{p.authors[0].name}</Link> : p.authors[0].name}
+                        {p.authors.length > 1 ? ` +${p.authors.length - 1}` : ''}
+                      </small>}
+                    </div>
+                    <p className="prop-ementa">{p.summary}</p>
+                    <div className="record-meta">
+                      <span>{fmtTime(p.presentedAt)}</span>
+                      <a href={p.portalUrl} target="_blank" rel="noreferrer">{t(L, 'today.spotLink')}</a>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Collapsible>
 
-          <Reveal delay={80}>
-            <section className="profile-section vx">
-              <h2>{t(L, 'today.votes')}</h2>
-              {today.votings.length === 0 ? (
-                <p className="empty-note">{t(L, 'today.votes.empty')}</p>
-              ) : (
-                <ul className="record-list">
-                  {today.votings.map(v => (
-                    <li key={v.id}>
-                      <div className="prop-id-row">
-                        <span className="prop-id">{v.org}</span>
-                        {v.approved != null && <span className={`vote vote-${v.approved ? 's' : 'n'}`}>{v.approved ? 'Aprovada' : 'Rejeitada'}</span>}
-                      </div>
-                      <p className="prop-ementa">{v.description}</p>
-                      <div className="record-meta">
-                        <span>{fmtTime(v.registeredAt)}</span>
-                        {v.votersCount != null && <span>{v.votersCount}</span>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </Reveal>
+          <Collapsible id="votos" title={t(L, 'today.votes')}>
+            {today.votings.length === 0 ? (
+              <p className="empty-note">{t(L, 'today.votes.empty')}</p>
+            ) : (
+              <ul className="record-list">
+                {today.votings.map(v => (
+                  <li key={v.id}>
+                    <div className="prop-id-row">
+                      <span className="prop-id">{v.org}</span>
+                      {v.approved != null && <span className={`vote vote-${v.approved ? 's' : 'n'}`}>{v.approved ? 'Aprovada' : 'Rejeitada'}</span>}
+                    </div>
+                    <p className="prop-ementa">{v.description}</p>
+                    <div className="record-meta">
+                      <span>{fmtTime(v.registeredAt)}</span>
+                      {v.votersCount != null && <span>{v.votersCount}</span>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Collapsible>
 
-          <Reveal delay={160}>
-            <section className="profile-section vx">
-              <h2>{t(L, 'today.agenda')}</h2>
-              {today.events.length === 0 ? (
-                <p className="empty-note">{t(L, 'today.agenda.empty')}</p>
-              ) : (
-                <ul className="record-list events">
-                  {today.events.slice(0, 20).map(e => (
-                    <li key={e.id}>
-                      <span className="event-date">{fmtTime(e.startsAt)}</span>
-                      <div>
-                        <b>{e.type}{e.orgs ? ` — ${e.orgs}` : ''}</b>
-                        {e.title && e.title !== e.type && <p>{e.title}</p>}
-                        {e.location && <small>{e.location}</small>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </Reveal>
+          <Collapsible id="agenda" title={t(L, 'today.agenda')}>
+            {today.events.length === 0 ? (
+              <p className="empty-note">{t(L, 'today.agenda.empty')}</p>
+            ) : (
+              <ul className="record-list events">
+                {today.events.slice(0, 20).map(e => (
+                  <li key={e.id}>
+                    <span className="event-date">{fmtTime(e.startsAt)}</span>
+                    <div>
+                      <b>{e.type}{e.orgs ? ` — ${e.orgs}` : ''}</b>
+                      {e.title && e.title !== e.type && <p>{e.title}</p>}
+                      {e.location && <small>{e.location}</small>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Collapsible>
         </div>
 
-        <Reveal delay={100}>
-          <section className="profile-section">
-            <h2>{t(L, 'today.presence')}</h2>
-            <p className="sub">{t(L, 'today.presence.sub')}</p>
-            <PresenceTabs
-              present={today.present}
-              roster={directory.politicians}
-              langPrefix={q}
-              labels={{
-                on: t(L, 'today.pres.on'),
-                off: t(L, 'today.pres.off'),
-                note1: t(L, 'today.pres.note1'),
-                note2: t(L, 'today.pres.note2'),
-                none: t(L, 'today.pres.none'),
-                offLine: t(L, 'today.pres.offLine'),
-                senate: t(L, 'today.senate'),
-                group: t(L, 'today.presence'),
-              }}
-            />
-          </section>
-        </Reveal>
+        <Collapsible id="presenca" title={t(L, 'today.presence')} badge={<span className="status-tag on">{today.present.length}</span>}>
+          <p className="sub">{t(L, 'today.presence.sub')}</p>
+          <PresenceTabs
+            present={today.present}
+            roster={directory.politicians}
+            langPrefix={q}
+            labels={{
+              on: t(L, 'today.pres.on'),
+              off: t(L, 'today.pres.off'),
+              note1: t(L, 'today.pres.note1'),
+              note2: t(L, 'today.pres.note2'),
+              none: t(L, 'today.pres.none'),
+              offLine: t(L, 'today.pres.offLine'),
+              senate: t(L, 'today.senate'),
+              group: t(L, 'today.presence'),
+            }}
+          />
+        </Collapsible>
 
         <SourceList lang={L} sources={today.sources} failed={today.failedSources} />
         <p className="fine a" style={{ ['--ad' as any]: '560ms' }}>

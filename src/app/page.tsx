@@ -5,6 +5,7 @@ import CountUp from '@/components/CountUp';
 import SourceMark from '@/components/SourceMark';
 import Reveal from '@/components/Reveal';
 import MapaClient, { type MapFace } from '@/components/MapaClient';
+import EscandaloDoDia from '@/components/EscandaloDoDia';
 import { listAllPoliticians } from '@/services/politicians';
 import { pickLang, t } from '@/i18n/messages';
 
@@ -64,6 +65,17 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
             </p>
           </aside>
         </section>
+
+        <EscandaloDoDia
+          langPrefix={q}
+          labels={{
+            eyebrow: t(L, 'scandal.eyebrow'),
+            empty: t(L, 'scandal.none'),
+            evidence: t(L, 'scandal.evidence'),
+            innocent: t(L, 'scandal.innocent'),
+            caseSeal: t(L, 'scandal.caseSeal'),
+          }}
+        />
 
         <Reveal>
           <section className="bloco" aria-label={t(L, 'home.mapTitle')} id="mapa">

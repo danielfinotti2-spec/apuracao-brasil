@@ -3,5 +3,7 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "regions": ["gru1"],
-  "crons": []
+  "crons": [
+    { "path": "/api/cron/daily", "schedule": "55 23 * * *" }
+  ]
 }

@@ -34,6 +34,15 @@ type ApiProposicao = { id: number; siglaTipo: string; numero: number; ano: numbe
 type ApiAutor = { nome?: string; uri?: string };
 type ApiVotacao = { id?: string; siglaOrgao?: string; descricao?: string; dataHoraRegistro?: string | null; aprovacao?: number | boolean | null; votos?: number };
 
+// Tipos de CONTEÚDO (não de procedimento): entra no quadro e no ranking o que
+// propõe norma, emenda ou fiscalização. Ofícios, redações finiais e
+// requerimentos de votação/retirada de pauta ficam fora para não inflar contagens.
+const SUBSTANTIVE_TYPES = new Set([
+  'PL', 'PEC', 'PLP', 'PLV', 'MPV', 'PDL', 'PDC', 'PLN', 'PLOA', 'PLDO', 'PL', 'RIC', 'INC', 'REQ', 'PRC',
+]);
+
+const normEmenta = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').slice(0, 80);
+
 /** Monta o quadro do dia. Tolerante a falha parcial (registrada em failedSources). */
 export async function getTodayData(): Promise<TodayData> {
   const { date, label } = brasiliaToday();
@@ -42,9 +51,19 @@ export async function getTodayData(): Promise<TodayData> {
 
   // 1) Proposições apresentadas hoje
   const proposalsP = (async () => {
-    const url = `${API}/proposicoes?dataApresentacaoInicio=${date}&dataApresentacaoFim=${date}&ordem=DESC&ordenarPor=id&itens=15&pagina=1`;
+    const url = `${API}/proposicoes?dataApresentacaoInicio=${date}&dataApresentacaoFim=${date}&ordem=DESC&ordenarPor=id&itens=40&pagina=1`;
     const result = await fetchTrackedJson<{ dados: ApiProposicao[] }>(url, 600);
-    const items = result.data.dados ?? [];
+    // filtra procedimento e deduplica ementas repetidas (req. + votação nominal do req.)
+    const seen = new Set<string>();
+    const items = (result.data.dados ?? [])
+      .filter(p => SUBSTANTIVE_TYPES.has(p.siglaTipo))
+      .filter(p => {
+        const key = normEmenta(p.ementa ?? '');
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, 12);
     const authors = await Promise.all(items.slice(0, 12).map(async p => {
       try {
         const a = await fetchTrackedJson<{ dados: ApiAutor[] }>(`${API}/proposicoes/${p.id}/autores`, 600);
@@ -54,7 +73,7 @@ export async function getTodayData(): Promise<TodayData> {
         }));
       } catch { return []; }
     }));
-    const proposals: TodayProposal[] = items.slice(0, 12).map((p, i) => ({
+    const proposals: TodayProposal[] = items.map((p, i) => ({
       id: p.id, type: p.siglaTipo, number: p.numero, year: p.ano ?? null,
       summary: p.ementa, presentedAt: p.dataApresentacao ?? null,
       authors: authors[i] ?? [],

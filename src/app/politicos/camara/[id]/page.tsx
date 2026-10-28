@@ -5,7 +5,7 @@ import SiteFooter from '@/components/SiteFooter';
 import Seal from '@/components/Seal';
 import CountUp from '@/components/CountUp';
 import PartyMark from '@/components/PartyMark';
-import Reveal from '@/components/Reveal';
+import Collapsible from '@/components/Collapsible';
 import SourceList from '@/components/SourceList';
 import { getDeputadoProfile } from '@/services/camara';
 import { formatDate, formatDateTime, formatMoney, MONTHS } from '@/lib/format';
@@ -68,10 +68,10 @@ export default async function DeputadoPage({ params, searchParams }: { params: P
         <nav className="profile-nav a" style={{ ['--ad' as any]: '150ms' }} aria-label={t(L, 'profile.nav.goto')}>
           <span>{t(L, 'profile.nav.goto')}:</span>
           <a href="#identificacao">{t(L, 'profile.overview')}</a>
+          <a href="#salario">{t(L, 'profile.salary.h')}</a>
           <a href="#despesas">{t(L, 'profile.sec.expenses')}</a>
           <a href="#proposicoes">{t(L, 'profile.sec.bills')}</a>
           <a href="#agenda">{t(L, 'profile.sec.agenda')}</a>
-          <a href="#judicial">{t(L, 'profile.judicial.h')}</a>
           <a href="#fontes">{t(L, 'common.source')}</a>
         </nav>
 
@@ -109,93 +109,77 @@ export default async function DeputadoPage({ params, searchParams }: { params: P
           </section>
 
           <section className="profile-section" id="salario" aria-label={t(L, 'profile.salary.h')}>
-            <h2>{t(L, 'profile.salary.h')} <span className="status-tag">{t(L, 'profile.judicial.tag.plan')}</span></h2>
+            <h2>{t(L, 'profile.salary.h')}</h2>
             <p>{t(L, 'profile.salary.p.camara')}</p>
             <p className="fine">
               <a href="https://www.camara.leg.br/transparencia" target="_blank" rel="noreferrer">{t(L, 'profile.salary.link')}</a>
             </p>
           </section>
 
-          <Reveal>
-            <section className="profile-section" id="despesas" aria-label={t(L, 'profile.sec.expenses')}>
-              <h2>{t(L, 'profile.sec.expenses')} <Seal status="oficial-confirmada" compact lang={L} /></h2>
-              <p className="sub">{t(L, 'profile.expenses.period')}: {profile.expenses.loadedMonths}. {t(L, 'profile.expenses.net')}</p>
-              {profile.expenses.groups.length === 0 && <p className="empty-note">{t(L, 'profile.expenses.empty')}</p>}
-              {profile.expenses.groups.length > 0 && (
-                <table className="table">
-                  <thead>
-                    <tr><th>{t(L, 'profile.expenses.group')}</th><th className="num">{t(L, 'profile.expenses.notes')}</th><th className="num">{t(L, 'profile.expenses.total')}</th></tr>
-                  </thead>
-                  <tbody>
-                    {profile.expenses.groups.slice(0, 8).map(g => (
-                      <tr key={g.type}>
-                        <td>{g.type}</td>
-                        <td className="num">{g.count}</td>
-                        <td className="num">{formatMoney(g.total)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-              {profile.expenses.recent.length > 0 && (
-                <>
-                  <h3 className="inner-title">{t(L, 'profile.expenses.last')}</h3>
-                  <ul className="record-list">
-                    {profile.expenses.recent.slice(0, 10).map((e, i) => (
-                      <li key={i}>
-                        <time>{MONTHS[e.month] ?? e.month}/{e.year}</time>
-                        <div><b>{e.type}</b><small>{e.supplier}{e.supplierDocument ? ` — ${e.supplierDocument}` : ''}</small></div>
-                        <b>{formatMoney(e.netValue)}</b>
-                        {e.documentUrl && <a href={e.documentUrl} target="_blank" rel="noreferrer" aria-label={t(L, 'profile.doc')}>{t(L, 'profile.doc')}</a>}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </section>
-          </Reveal>
+          <Collapsible id="despesas" defaultOpen title={<>{t(L, 'profile.sec.expenses')} <Seal status="oficial-confirmada" compact lang={L} /></>}>
+            <p className="sub">{t(L, 'profile.expenses.period')}: {profile.expenses.loadedMonths}. {t(L, 'profile.expenses.net')}</p>
+            {profile.expenses.groups.length === 0 && <p className="empty-note">{t(L, 'profile.expenses.empty')}</p>}
+            {profile.expenses.groups.length > 0 && (
+              <table className="table">
+                <thead>
+                  <tr><th>{t(L, 'profile.expenses.group')}</th><th className="num">{t(L, 'profile.expenses.notes')}</th><th className="num">{t(L, 'profile.expenses.total')}</th></tr>
+                </thead>
+                <tbody>
+                  {profile.expenses.groups.slice(0, 8).map(g => (
+                    <tr key={g.type}>
+                      <td>{g.type}</td>
+                      <td className="num">{g.count}</td>
+                      <td className="num">{formatMoney(g.total)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {profile.expenses.recent.length > 0 && (
+              <>
+                <h3 className="inner-title">{t(L, 'profile.expenses.last')}</h3>
+                <ul className="record-list">
+                  {profile.expenses.recent.slice(0, 10).map((e, i) => (
+                    <li key={i}>
+                      <time>{MONTHS[e.month] ?? e.month}/{e.year}</time>
+                      <div><b>{e.type}</b><small>{e.supplier}{e.supplierDocument ? ` — ${e.supplierDocument}` : ''}</small></div>
+                      <b>{formatMoney(e.netValue)}</b>
+                      {e.documentUrl && <a href={e.documentUrl} target="_blank" rel="noreferrer" aria-label={t(L, 'profile.doc')}>{t(L, 'profile.doc')}</a>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </Collapsible>
 
-          <Reveal delay={60}>
-            <section className="profile-section" id="proposicoes" aria-label={t(L, 'profile.sec.bills')}>
-              <h2>{t(L, 'profile.sec.bills')} <Seal status="oficial-confirmada" compact lang={L} /></h2>
-              <p className="sub">{t(L, 'profile.bills.sub')}</p>
-              {profile.proposals.length === 0 && <p className="empty-note">{t(L, 'profile.bills.empty')}</p>}
-              <ul className="record-list">
-                {profile.proposals.map(pr => (
-                  <li key={pr.id}>
-                    <span className="prop-id">{pr.type} {pr.number}{pr.year ? `/${pr.year}` : ''}</span>
-                    <div><b>{pr.summary}</b>{pr.presentedAt && <small>{t(L, 'profile.presentedAt')} {formatDate(pr.presentedAt)}</small>}</div>
-                    <a href={pr.portalUrl} target="_blank" rel="noreferrer">{t(L, 'profile.tramit')}</a>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </Reveal>
+          <Collapsible id="proposicoes" title={<>{t(L, 'profile.sec.bills')} <Seal status="oficial-confirmada" compact lang={L} /></>}>
+            <p className="sub">{t(L, 'profile.bills.sub')}</p>
+            {profile.proposals.length === 0 && <p className="empty-note">{t(L, 'profile.bills.empty')}</p>}
+            <ul className="record-list">
+              {profile.proposals.map(pr => (
+                <li key={pr.id}>
+                  <span className="prop-id">{pr.type} {pr.number}{pr.year ? `/${pr.year}` : ''}</span>
+                  <div><b>{pr.summary}</b>{pr.presentedAt && <small>{t(L, 'profile.presentedAt')} {formatDate(pr.presentedAt)}</small>}</div>
+                  <a href={pr.portalUrl} target="_blank" rel="noreferrer">{t(L, 'profile.tramit')}</a>
+                </li>
+              ))}
+            </ul>
+          </Collapsible>
 
-          <Reveal delay={120}>
-            <section className="profile-section" id="agenda" aria-label={t(L, 'profile.sec.agenda')}>
-              <h2>{t(L, 'profile.sec.agenda')} <Seal status="oficial-confirmada" compact lang={L} /></h2>
-              <p className="sub">
-                {formatDate(profile.events.periodStart)} — {formatDate(profile.events.periodEnd)}. {t(L, 'profile.agenda.note')}
-              </p>
-              {profile.events.items.length === 0 && <p className="empty-note">{t(L, 'profile.agenda.empty')}</p>}
-              <ul className="record-list">
-                {profile.events.items.slice(0, 12).map(ev => (
-                  <li key={ev.id}>
-                    <time>{formatDateTime(ev.startsAt)}</time>
-                    <div><b>{ev.type}</b><small>{ev.title}{ev.location ? ` — ${ev.location}` : ''}{ev.situation ? ` (${ev.situation})` : ''}</small></div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </Reveal>
-
-          <Reveal delay={160}>
-            <section className="profile-section" id="judicial" aria-label={t(L, 'profile.judicial.h')}>
-              <h2>{t(L, 'profile.judicial.h')} <span className="status-tag">{t(L, 'profile.judicial.tag.plan')}</span></h2>
-              <p>{t(L, 'profile.judicial.p')}</p>
-            </section>
-          </Reveal>
+          <Collapsible id="agenda" title={<>{t(L, 'profile.sec.agenda')} <Seal status="oficial-confirmada" compact lang={L} /></>}>
+            <p className="sub">
+              {formatDate(profile.events.periodStart)} — {formatDate(profile.events.periodEnd)}. {t(L, 'profile.agenda.note')}
+            </p>
+            {profile.events.items.length === 0 && <p className="empty-note">{t(L, 'profile.agenda.empty')}</p>}
+            <ul className="record-list">
+              {profile.events.items.slice(0, 12).map(ev => (
+                <li key={ev.id}>
+                  <time>{formatDateTime(ev.startsAt)}</time>
+                  <div><b>{ev.type}</b><small>{ev.title}{ev.location ? ` — ${ev.location}` : ''}{ev.situation ? ` (${ev.situation})` : ''}</small></div>
+                </li>
+              ))}
+            </ul>
+          </Collapsible>
         </div>
 
         <p className="pending-note">{t(L, 'profile.pending')}</p>
