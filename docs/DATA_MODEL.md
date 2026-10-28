@@ -51,5 +51,5 @@ ou competência.
 ## Estado atual da implementação
 
 Na **Fase 1** o Postgres ainda **não está conectado**: o portal lê as APIs oficiais em
-tempo real com cache no servidor (diretório 1 h, perfis 30 min, apuração 30 s). A
+tempo real com cache no servidor (diretório 1 h, perfis 30 min, quadro do dia 15 min). A
 conexão do banco e a fila de jobs (Celery/Redis ou equivalente) acontecem na Fase 5.

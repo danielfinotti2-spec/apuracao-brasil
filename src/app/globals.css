@@ -134,8 +134,8 @@ small{color:var(--muted)}
 @media(max-width:820px){.banner-tag{display:none}.mini-br{display:none}.banner-title{font-size:19px}.feed{top:auto;height:70vh;bottom:8px;right:8px;left:8px;width:auto;max-width:none}}
 
 /* ================================================================
-   PORTAL FISCALIZA BRASIL — tema claro institucional (IBM Plex Sans)
-   O mapa eleitoral em /apuracao (escuro) não é afetado por este bloco.
+   PORTAL FISCALIZA BRASIL — tema institucional (IBM Plex Sans)
+   Alternância claro/escuro via data-theme no <html> (ver fim do arquivo).
    ================================================================ */
 body:has(.site){background:#f4f4f1}
 .site{
@@ -451,3 +451,126 @@ tr:hover .vote{transform:scale(1.06)}
   .module-row .go,.seal,.vote,.site .btn,.pol-photo,.profile-photo,.pol-card{transition:none!important}
   .app .scoreboard,.app .panel,.app .map-card{will-change:auto}
 }
+
+/* ================================================================
+   MAPA DA REPRESENTAÇÃO (home)
+   ================================================================ */
+.map-split{display:grid;grid-template-columns:1fr 300px;gap:0;border-top:1px solid var(--lineP)}
+.map-canvas{border-right:1px solid var(--lineP);min-height:460px;position:relative}
+.map-canvas .leaflet-container,.rep-map{height:460px;width:100%;background:transparent;outline:none;cursor:grab}
+.map-canvas .leaflet-container:active{cursor:grabbing}
+.rep-map-loading{height:460px;display:grid;place-items:center;color:var(--mutedP);font-size:13px;gap:8px;margin:0}
+.leaflet-tooltip.rep-tip{background:var(--inkP)!important;color:var(--paper)!important;border:0!important;border-radius:4px!important;font:12px 'IBM Plex Sans',Inter,sans-serif!important;line-height:1.5;padding:7px 10px!important;box-shadow:0 8px 20px rgba(0,0,0,.2)!important}
+.leaflet-tooltip.rep-tip:before{display:none!important}
+.map-side{padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.map-side h3{font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:none;color:var(--mutedP);margin:10px 0 8px}
+.map-side h3:first-child{margin-top:0}
+.top-states{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.top-states li{display:grid;grid-template-columns:34px 1fr 30px;gap:9px;align-items:center;font-size:13px}
+.top-states li a{color:var(--accent);font-weight:700;text-decoration:none;font-variant-numeric:tabular-nums}
+.top-states li a:hover{text-decoration:underline}
+.top-states li b{text-align:right;font-variant-numeric:tabular-nums}
+.state-bar{height:7px;background:var(--lineP);border-radius:1px;overflow:hidden}
+.state-bar i{display:block;height:100%;background:var(--accent);border-radius:1px;transition:width .8s cubic-bezier(.22,.68,.24,1)}
+.top-parties{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.top-parties li{display:inline-flex;align-items:center;gap:6px}
+.top-parties li b{font-size:12px;font-variant-numeric:tabular-nums;color:var(--mutedP)}
+@media(max-width:900px){.map-split{grid-template-columns:1fr}.map-canvas{border-right:0;border-bottom:1px solid var(--lineP)}}
+
+/* ================================================================
+   O DIA DE HOJE — destaque, grade, presenças
+   ================================================================ */
+.hoje-kpis{min-width:0;width:100%;margin-top:8px;margin-bottom:14px}
+.hoje-kpis dl{grid-template-columns:repeat(4,1fr)}
+@media(max-width:640px){.hoje-kpis dl{grid-template-columns:1fr 1fr}}
+.hoje-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:14px}
+@media(max-width:1000px){.hoje-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.hoje-grid{grid-template-columns:1fr}}
+.prop-id-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:3px}
+.prop-author{color:var(--mutedP);font-size:12px}
+.prop-author a{color:var(--accent);text-decoration:none}
+.prop-author a:hover{text-decoration:underline}
+.prop-ementa{margin:2px 0 0;font-size:12.5px;line-height:1.55;color:var(--inkP);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.record-meta{display:flex;gap:12px;align-items:center;margin-top:5px;font-size:11.5px;color:var(--faintP)}
+.record-meta a{color:var(--accent);text-decoration:none;font-weight:600}
+.record-meta a:hover{text-decoration:underline}
+.record-list.events li{display:flex;gap:12px}
+.event-date{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11.5px;color:var(--faintP);font-variant-numeric:tabular-nums;min-width:44px;padding-top:2px}
+
+/* destaque do dia + comemoração contida */
+.destaque{position:relative;border:1px solid var(--lineP);border-left:3px solid var(--accent);background:var(--surface);padding:18px 22px;display:flex;gap:18px;align-items:flex-start;margin:10px 0 16px;overflow:hidden}
+.destaque-body{flex:1;min-width:0}
+.destaque-body h2{font-size:19px;font-weight:800;letter-spacing:-.3px;margin:0 0 6px}
+.destaque-ementa{font-size:14px;line-height:1.6;color:var(--inkP);margin:0 0 8px}
+.destaque-meta{font-size:12.5px;color:var(--mutedP);margin:0}
+.destaque-meta a{color:var(--accent);text-decoration:none;font-weight:600}
+.destaque-meta a:hover{text-decoration:underline}
+.destaque-badge{display:flex;flex-direction:column;align-items:center;gap:5px;flex:none;color:var(--accent);text-align:center;width:86px;padding-top:2px}
+.destaque-badge span{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;line-height:1.3}
+.destaque:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.5) 50%,transparent 75%);transform:translateX(-130%);pointer-events:none}
+.destaque.celebrate .destaque-badge svg{animation:starPop .7s cubic-bezier(.2,.9,.3,1.4) .15s both}
+.destaque.celebrate:after{animation:destaqueShine 1.2s .4s ease-out both}
+@keyframes starPop{0%{transform:scale(0) rotate(-40deg);opacity:0}60%{transform:scale(1.18) rotate(6deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+@keyframes destaqueShine{to{transform:translateX(130%)}}
+.confetti{position:absolute;left:96px;top:14px;pointer-events:none}
+.confetti i{position:absolute;width:6px;height:10px;border-radius:1px;background:var(--accent);opacity:0;animation:conf .95s cubic-bezier(.2,.8,.25,1) calc(.1s + var(--d)) forwards}
+.confetti i:nth-child(3n){background:#d9b300}.confetti i:nth-child(3n+1){background:#002776}.confetti i:nth-child(4n){background:#2fd18b}
+@keyframes conf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--x),52px) rotate(var(--r))}}
+@media (prefers-reduced-motion: reduce){.destaque.celebrate .destaque-badge svg,.destaque.celebrate:after,.confetti i{animation:none!important}.confetti{display:none}}
+@media(max-width:640px){.destaque{flex-direction:column;gap:10px}.destaque-badge{flex-direction:row;width:auto}.confetti{left:20px}}
+
+/* presenças do dia */
+.presence-tabs{display:flex;gap:0;border-bottom:1px solid var(--lineP);margin:10px 0 12px}
+.presence-tabs button{appearance:none;background:none;border:0;border-bottom:2px solid transparent;font:inherit;font-size:13.5px;font-weight:600;color:var(--mutedP);padding:9px 16px;cursor:pointer}
+.presence-tabs button b{font-variant-numeric:tabular-nums;margin-left:4px;color:inherit}
+.presence-tabs button.on{color:var(--inkP);border-bottom-color:var(--accent)}
+.presence-tabs button:hover{color:var(--inkP)}
+.presence-note{font-size:12px;line-height:1.6;color:var(--mutedP);background:var(--surface);border:1px solid var(--lineP);border-left:3px solid #c9a227;padding:10px 14px;border-radius:2px;margin:0 0 14px}
+.presence-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1px;background:var(--lineP);border:1px solid var(--lineP)}
+.presence-grid li a{display:flex;flex-direction:column;gap:3px;background:var(--surface);padding:11px 13px;color:inherit;text-decoration:none;transition:background .18s ease}
+.presence-grid li a:hover{background:#eceeeb}
+.presence-grid.plain li a{opacity:.86}
+.presence-name b{font-size:13px;font-weight:600;line-height:1.35}
+.presence-meta{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--mutedP)}
+.presence-grid li a small{font-size:11px;color:var(--faintP)}
+
+/* ícones sociais + botão de tema */
+.social-links.icons{display:inline-flex;gap:16px;align-items:center}
+.social-icon{color:var(--mutedP);transition:color .2s,transform .2s cubic-bezier(.22,.68,.24,1);display:inline-flex}
+.social-icon:hover{color:var(--accent);transform:translateY(-1px)}
+.theme-toggle{background:var(--surface);border:1px solid var(--lineS);border-radius:2px;color:var(--inkP);width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none;margin-left:14px;transition:background .18s ease,transform .18s ease}
+.theme-toggle:hover{background:#eceeeb}
+.theme-toggle:active{transform:scale(.95)}
+.site-nav{flex:1}
+
+/* ================================================================
+   TEMA ESCURO DO PORTAL (a tela do mapa já é escura por padrão)
+   ================================================================ */
+html[data-theme="dark"] body:has(.site){background:#101310}
+html[data-theme="dark"] .site{
+  --paper:#101310;--surface:#181c17;--lineP:#262b24;--lineS:#3a4036;
+  --inkP:#edf0ea;--mutedP:#a5ada2;--faintP:#7a8275;
+  --accent:#4fae7e;--accentInk:#7fcfa6;--danger:#e06c6c;
+  --warnBg:#2a2415;--warnLine:#5d4f22;--warnInk:#d8c281;
+}
+html[data-theme="dark"] .site .btn:hover,
+html[data-theme="dark"] .module-row:hover,
+html[data-theme="dark"] .pol-card:hover,
+html[data-theme="dark"] .presence-grid li a:hover{background:#1f241d}
+html[data-theme="dark"] .theme-toggle:hover{background:#1f241d}
+html[data-theme="dark"] .pol-photo,html[data-theme="dark"] .profile-photo{background:#222720}
+html[data-theme="dark"] .site .select-pill option{background:#181c17;color:var(--inkP)}
+html[data-theme="dark"] .site .seg button.on{background:var(--inkP);color:#101310}
+html[data-theme="dark"] .status-tag.on{border-color:#2f5a43;color:#7fcfa6;background:#1a2b21}
+html[data-theme="dark"] .seal-ok{background:#1a2b21;border-color:#2f5a43;color:#7fcfa6}.seal-ok i{background:#4fae7e}
+html[data-theme="dark"] .seal-mid{background:#16222c;border-color:#2b4a63;color:#6fb2e6}.seal-mid i{background:#6fb2e6}
+html[data-theme="dark"] .seal-warn{background:#2b2412;border-color:#5a4a1d;color:#d8bc6a}.seal-warn i{background:#c9a227}
+html[data-theme="dark"] .seal-off{background:#1c201a;border-color:var(--lineS);color:var(--mutedP)}.seal-off i{background:var(--faintP)}
+html[data-theme="dark"] .site .spinner{border-color:#2c332a;border-top-color:var(--accent)}
+html[data-theme="dark"] .site .err-detail{color:#e59a9a!important}
+html[data-theme="dark"] .source-mark{color:var(--faintP)}
+html[data-theme="dark"] .site .btn.primary{color:#fff}
+html[data-theme="dark"] .vote{color:#fff}
+html[data-theme="dark"] .destaque:after{background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.08) 50%,transparent 75%)}
+html[data-theme="dark"] .map-canvas .leaflet-container{background:transparent}
+html[data-theme="dark"] .state-bar{background:#262b24}

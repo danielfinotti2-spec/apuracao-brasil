@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import PartyMark from '@/components/PartyMark';
 import type { PoliticianListResult, PoliticianSummary } from '@/types/politician';
@@ -19,10 +20,14 @@ function Photo({ p }: { p: PoliticianSummary }) {
 }
 
 export default function PoliticosClient() {
+  const params = useSearchParams();
   const [data, setData] = useState<PoliticianListResult | null>(null);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
-  const [uf, setUf] = useState('');
+  const [uf, setUf] = useState(() => {
+    const fromUrl = (params.get('uf') ?? '').toUpperCase();
+    return BRAZIL_UFS.includes(fromUrl) ? fromUrl : '';
+  });
   const [party, setParty] = useState('');
   const [chamber, setChamber] = useState<'' | PoliticianSummary['chamber']>('');
 

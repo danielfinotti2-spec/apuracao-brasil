@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import SiteHeader from '@/components/SiteHeader';
 import Seal from '@/components/Seal';
+import SocialLinks from '@/components/SocialLinks';
 
 export const metadata = {
   title: 'Metodologia de verificação | Fiscaliza Brasil',
@@ -39,7 +40,7 @@ const RULES = [
 export default function MetodologiaPage() {
   return (
     <main className="site">
-      <SiteHeader />
+      <SiteHeader active="metodologia" />
       <div className="site-body">
         <section className="page-head a" style={{ ['--ad' as any]: '80ms' }}>
           <h1>Metodologia de verificação</h1>
@@ -89,8 +90,8 @@ export default function MetodologiaPage() {
           </ol>
           <p className="fine">
             Hoje a atualização acontece por revalidação de cache no servidor: diretório a cada hora,
-            perfis a cada 30 minutos, apuração a cada 30 segundos. O pipeline agendado com filas e
-            histórico completo é a Fase 5 do planejamento e ainda não está implementado.
+            perfis a cada 30 minutos, quadro do dia a cada 15 minutos. O pipeline agendado com filas e
+            histórico completo é uma das fases planejadas e ainda não está implementado.
           </p>
         </section>
 
@@ -115,11 +116,7 @@ export default function MetodologiaPage() {
 
       <footer className="foot">
         <span>Fiscaliza Brasil — informação para fortalecer a democracia.</span>
-        <span className="social-links">
-          <a href="https://www.instagram.com/euodeene" target="_blank" rel="noreferrer">Instagram @euodeene</a>
-          <a href="https://x.com/euodeene" target="_blank" rel="noreferrer">X</a>
-          <a href="https://github.com/danielfinotti2-spec" target="_blank" rel="noreferrer">GitHub</a>
-        </span>
+        <SocialLinks />
       </footer>
     </main>
   );

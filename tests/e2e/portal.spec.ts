@@ -14,10 +14,22 @@ const fixture = {
 test('portal: página inicial apresenta módulos e navegação', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /Fiscalize quem você/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'O que seu eleito fez hoje', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Buscar políticos' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Abrir mapa da apuração' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Mapa da representação' })).toBeVisible();
   await page.getByRole('link', { name: 'Políticos' }).first().click();
   await expect(page).toHaveURL(/\/politicos/);
+});
+
+test('portal: tema claro/escuro alterna e persiste', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.getByRole('button', { name: 'Escurecer a tela' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.getByRole('button', { name: 'Clarear a tela' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
 test('diretório: lista, filtra e expõe links de perfil (dados simulados só no teste)', async ({ page }) => {
@@ -41,6 +53,13 @@ test('diretório: lista, filtra e expõe links de perfil (dados simulados só no
   await expect(page.locator('.pol-card').first()).toHaveAttribute('href', '/politicos/camara/204379');
 });
 
+test('diretório: aceita filtro de UF vindo do mapa (?uf=AC)', async ({ page }) => {
+  await page.route('**/api/politicians', route => route.fulfill({ json: fixture }));
+  await page.goto('/politicos?uf=AC');
+  await expect(page.locator('.pol-card')).toHaveCount(1);
+  await expect(page.locator('.pol-card b')).toHaveText('Alan Rick');
+});
+
 test('diretório: falha de fonte oficial fica visível, nunca escondida', async ({ page }) => {
   await page.route('**/api/politicians', route => route.fulfill({
     json: { ...fixture, failedSources: [{ name: 'API de Dados Abertos do Senado Federal', url: 'https://legis.senado.leg.br/x', error: 'HTTP 503' }] },
@@ -54,6 +73,16 @@ test('diretório: quando todas as fontes falham, mostra indisponibilidade', asyn
   await page.route('**/api/politicians', route => route.fulfill({ status: 503, json: { error: 'As fontes oficiais estão indisponíveis no momento.' } }));
   await page.goto('/politicos');
   await expect(page.getByText('As fontes oficiais estão indisponíveis no momento.')).toBeVisible();
+});
+
+test('hoje: exibe o registro do dia com as fontes', async ({ page }) => {
+  await page.goto('/hoje');
+  await expect(page.getByRole('heading', { name: 'O que seu eleito fez hoje' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Proposições de hoje' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Agenda oficial de hoje' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Presenças registradas hoje' })).toBeVisible();
+  await expect(page.getByText(/sem registro público.*não é prova de falta/i)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Fontes utilizadas nesta página' })).toBeVisible();
 });
 
 test('metodologia: exibe os quatro selos e as regras', async ({ page }) => {

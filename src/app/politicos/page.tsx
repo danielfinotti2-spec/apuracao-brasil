@@ -1,4 +1,6 @@
+import { Suspense } from 'react';
 import SiteHeader from '@/components/SiteHeader';
+import SocialLinks from '@/components/SocialLinks';
 import PoliticosClient from '@/components/PoliticosClient';
 
 export const metadata = {
@@ -9,17 +11,15 @@ export const metadata = {
 export default function PoliticosPage() {
   return (
     <main className="site">
-      <SiteHeader />
+      <SiteHeader active="politicos" />
       <div className="site-body">
-        <PoliticosClient />
+        <Suspense fallback={<div className="map-loading"><span className="spinner" />Abrindo o diretório…</div>}>
+          <PoliticosClient />
+        </Suspense>
       </div>
       <footer className="foot">
         <span>Fiscaliza Brasil — dados coletados das APIs oficiais e marcados com fonte e data de coleta.</span>
-        <span className="social-links">
-          <a href="https://www.instagram.com/euodeene" target="_blank" rel="noreferrer">Instagram @euodeene</a>
-          <a href="https://x.com/euodeene" target="_blank" rel="noreferrer">X</a>
-          <a href="https://github.com/danielfinotti2-spec" target="_blank" rel="noreferrer">GitHub</a>
-        </span>
+        <SocialLinks />
       </footer>
     </main>
   );
