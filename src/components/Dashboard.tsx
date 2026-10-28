@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GeoCollection, GeoFeature, ElectionResult, Outcome } from '@/types/geo';
 import Avatar from './Avatar';
@@ -153,7 +154,7 @@ export default function Dashboard() {
 
   return <main className="app">
     <header className="topbar">
-      <a className="brand" href="#" aria-label="Apuração Brasil, início" onClick={e => { e.preventDefault(); goBrazil(); }}><span className="brand-mark"><i /><i /><i /></span><b>apuração</b></a>
+      <Link className="brand" href="/" aria-label="Fiscaliza Brasil, início"><span className="brand-mark"><i /><i /><i /></span><span className="brand-text"><b>fiscaliza</b> brasil</span></Link>
       <div className="seg" role="group" aria-label="Escopo">{(['brasil', 'exterior'] as const).map(item => <button key={item} className={scope === item ? 'on' : ''} onClick={() => { if (item === 'exterior') { setOffice('Presidente'); goBrazil(); } setScope(item); }}>{item === 'brasil' ? 'Brasil' : 'Exterior'}</button>)}</div>
       <nav className="tabs" aria-label="Cargo">{offices.map(item => <button key={item} className={office === item ? 'on' : ''} onClick={() => { setOffice(item); if (item !== 'Presidente') setScope('brasil'); }}>{item}</button>)}</nav>
       <div className="top-meta">TSE · IBGE</div>
@@ -228,7 +229,7 @@ export default function Dashboard() {
         <div className="r-foot"><span>Última atualização</span><b>{updateAt ?? 'Não informada'}</b><span>✓ Fontes oficiais: TSE + IBGE</span></div>
       </aside>
     </section>
-    <footer className="foot"><span>Apuração Brasil · Informação para fortalecer a democracia.</span><span className="social-links"><a href="https://www.instagram.com/euodeene" target="_blank" rel="noreferrer">Instagram @euodeene</a><a href="https://x.com/euodeene" target="_blank" rel="noreferrer">X</a><a href="https://github.com/danielfinotti2-spec" target="_blank" rel="noreferrer">GitHub</a></span></footer>
+    <footer className="foot"><span>Fiscaliza Brasil · Informação para fortalecer a democracia.</span><span className="social-links"><a href="https://www.instagram.com/euodeene" target="_blank" rel="noreferrer">Instagram @euodeene</a><a href="https://x.com/euodeene" target="_blank" rel="noreferrer">X</a><a href="https://github.com/danielfinotti2-spec" target="_blank" rel="noreferrer">GitHub</a></span></footer>
   <FeedDrawer alerts={alerts} open={feedOpen} onClose={() => { setFeedOpen(false); setSeen(alerts.length); }} />
   </main>;
 }
