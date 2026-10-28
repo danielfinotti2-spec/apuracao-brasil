@@ -133,6 +133,19 @@ test('executivo: diretório destaca o card do Presidente', async ({ page }) => {
   await expect(page).toHaveURL(/\/politicos\/executivo\/presidencia/);
 });
 
+test('executivo: 27 governadores e prefeitos das capitais no diretório', async ({ page }) => {
+  await page.goto('/politicos');
+  await expect(page.getByRole('button', { name: /Governadores/ })).toBeVisible();
+  await expect(page.locator('#governadores .exec-card')).toHaveCount(27);
+  await expect(page.getByText('Wilson Lima')).toBeVisible();
+  await expect(page.getByText('Tarcísio de Freitas')).toBeVisible();
+  // prefeitos começa colapsado: abre por clique
+  await page.getByRole('button', { name: /Prefeitos das capitais/ }).click();
+  await expect(page.locator('#prefeitos .exec-card')).toHaveCount(27); // 26 capitais + nota do DF
+  await expect(page.getByText('Ricardo Nunes')).toBeVisible();
+  await expect(page.getByText('Eduardo Paes')).toBeVisible();
+});
+
 test('melhorias: sem banco configurado mostra fallback honesto', async ({ page }) => {
   await page.goto('/melhorias');
   await expect(page.getByRole('heading', { name: 'Melhorias e comentários' })).toBeVisible();

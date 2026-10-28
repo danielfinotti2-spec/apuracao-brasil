@@ -3,7 +3,10 @@ import Link from 'next/link';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import PoliticosClient from '@/components/PoliticosClient';
+import Collapsible from '@/components/Collapsible';
+import PartyMark from '@/components/PartyMark';
 import { pickLang, t } from '@/i18n/messages';
+import { GOVERNORS, CAPITAL_MAYORS, DF_MAYOR_NOTE, ELECTION_SOURCES } from '@/data/executive';
 
 export const metadata = {
   title: 'Diretório de políticos | Fiscaliza Brasil',
@@ -31,6 +34,37 @@ export default async function PoliticosPage({ searchParams }: { searchParams: Pr
           </span>
           <span className="go">→</span>
         </Link>
+        <div className="exec-blocks a" style={{ ['--ad' as any]: '110ms' }}>
+          <Collapsible id="governadores" title={t(L, 'gov.h')} badge={<span className="status-tag on">{GOVERNORS.length}</span>} defaultOpen>
+            <p className="sub">{t(L, 'gov.sub')}</p>
+            <ul className="exec-grid">
+              {GOVERNORS.map(g => (
+                <li key={g.uf}>
+                  <a className="exec-card" href={g.portal} target="_blank" rel="noreferrer">
+                    <span className="exec-uf">{g.uf}</span>
+                    <span className="exec-who"><b>{g.name}</b><small><PartyMark party={g.party} size="sm" /> {g.party}</small></span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p className="fine"><a href={ELECTION_SOURCES[0].url} target="_blank" rel="noreferrer">{t(L, 'exec.election')} ↗</a></p>
+          </Collapsible>
+          <Collapsible id="prefeitos" title={t(L, 'may.h')} badge={<span className="status-tag on">{CAPITAL_MAYORS.length}</span>}>
+            <p className="sub">{t(L, 'may.sub')}</p>
+            <ul className="exec-grid">
+              {CAPITAL_MAYORS.map(m => (
+                <li key={m.uf}>
+                  <span className="exec-card">
+                    <span className="exec-uf">{m.uf}</span>
+                    <span className="exec-who"><b>{m.name}</b><small>{m.city} · <PartyMark party={m.party} size="sm" /> {m.party}</small></span>
+                  </span>
+                </li>
+              ))}
+              <li className="exec-note"><span className="exec-card as-note"><small>{t(L, 'may.df')}</small></span></li>
+            </ul>
+            <p className="fine"><a href={ELECTION_SOURCES[0].url} target="_blank" rel="noreferrer">{t(L, 'exec.election')} ↗</a></p>
+          </Collapsible>
+        </div>
         <Suspense fallback={<div className="map-loading"><span className="spinner" />…</div>}>
           <PoliticosClient
             L={L}

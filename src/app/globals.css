@@ -1003,3 +1003,23 @@ html[data-theme="dark"] .splash-bar{background:#262b24}
   .mobile-nav-foot{margin:0;padding:14px 22px 20px;border-top:1px solid var(--lineP);font-size:11px;color:var(--faintP);font-weight:400}
 }
 body.menu-lock{overflow:hidden}
+
+/* ================================================================
+   FASE 13 — executivos (governadores + prefeitos das capitais)
+   ================================================================ */
+.exec-blocks{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.exec-grid{list-style:none;margin:12px 0 6px;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.exec-card{display:flex;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--lineP);border-radius:6px;
+  background:var(--surface);text-decoration:none;color:var(--inkP);height:100%;
+  transition:transform .22s cubic-bezier(.22,.68,.24,1),border-color .22s,box-shadow .22s}
+a.exec-card:hover{transform:translateY(-1px);border-color:var(--accent);box-shadow:0 6px 16px rgba(20,108,67,.12)}
+.exec-uf{flex:none;font:700 10.5px/1 'IBM Plex Mono',ui-monospace,monospace;letter-spacing:.06em;color:var(--accentInk);
+  border:1px solid var(--accent);border-radius:3px;padding:4px 6px;min-width:30px;text-align:center}
+.exec-who{display:flex;flex-direction:column;gap:1px;min-width:0}
+.exec-who b{font-size:13.5px;font-weight:600;line-height:1.25}
+.exec-who small{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mutedP);font-weight:400}
+.exec-card.as-note{border-style:dashed;background:transparent;cursor:default}
+.exec-card.as-note small{font-size:11.5px;color:var(--mutedP);line-height:1.5;font-weight:400}
+.exec-card .party-mark{vertical-align:-1px}
+@media(max-width:560px){.exec-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:380px){.exec-grid{grid-template-columns:1fr}}
